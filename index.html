@@ -543,6 +543,11 @@
 
   function endRound(won) {
     roundActive = false;
+    if (won) {
+      cells.forEach((c) => {
+        if (c.mine && !c.flagged) roundScore += MINE_FLAG_POINTS;
+      });
+    }
     let finalScore = won ? roundScore + CLEAR_BOARD_BONUS : roundScore;
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
       const player = current || { name: localStorage.getItem("ms_name") || "Player", score: 0 };
