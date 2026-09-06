@@ -484,9 +484,8 @@
   }
 
   let flagMode = false;
-  const FLAG_BONUS = 5;
-  let correctFlags = 0;
-  let flagMilestonesAwarded = 0;
+  const MINE_FLAG_POINTS = 2; // puntos por cada mina marcada correctamente
+  const CLEAR_BOARD_BONUS = 56; // puntos por completar el tablero entero
 
   window.toggleFlagMode = function () {
     flagMode = !flagMode;
@@ -504,13 +503,8 @@
     cells[idx].flagged = !cells[idx].flagged;
 
     if (cells[idx].mine) {
-      correctFlags += cells[idx].flagged ? 1 : -1;
-      const milestones = Math.floor(correctFlags / 3);
-      if (milestones > flagMilestonesAwarded) {
-        roundScore += (milestones - flagMilestonesAwarded) * FLAG_BONUS;
-        flagMilestonesAwarded = milestones;
-        document.getElementById("roundScoreVal").textContent = roundScore;
-      }
+      roundScore += cells[idx].flagged ? MINE_FLAG_POINTS : -MINE_FLAG_POINTS;
+      document.getElementById("roundScoreVal").textContent = roundScore;
     }
     renderBoard();
   }
@@ -519,8 +513,6 @@
     cells = generateSolvableBoard();
     roundActive = true;
     roundScore = 0;
-    correctFlags = 0;
-    flagMilestonesAwarded = 0;
 
     document.getElementById("roundIntro").style.display = "none";
     document.getElementById("roundArea").style.display = "block";
@@ -539,7 +531,6 @@
     toReveal.forEach((i) => {
       cells[i].revealed = true;
       if (cells[i].mine) hitMine = true;
-      else roundScore++;
     });
 
     document.getElementById("roundScoreVal").textContent = roundScore;
@@ -552,7 +543,7 @@
 
   function endRound(won) {
     roundActive = false;
-    let finalScore = won ? roundScore + 10 : roundScore;
+    let finalScore = won ? roundScore + CLEAR_BOARD_BONUS : roundScore;
     if (toroidalMode) finalScore *= 2;
 
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
