@@ -544,8 +544,6 @@
   function endRound(won) {
     roundActive = false;
     let finalScore = won ? roundScore + CLEAR_BOARD_BONUS : roundScore;
-    if (toroidalMode) finalScore *= 2;
-
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
       const player = current || { name: localStorage.getItem("ms_name") || "Player", score: 0 };
       player.score = (player.score || 0) + finalScore;
