@@ -106,7 +106,13 @@
   }
   #adminPanel b { color: var(--text); font-family: var(--font-display); }
 
-  #leaderboardBtn, #flagModeBtn { width: auto; padding: 8px 14px; font-size: 13px; margin-bottom: 12px; }
+    #leaderboardBtn, #flagModeBtn { width: auto; padding: 8px 14px; font-size: 13px; }
+  #roundControls { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
+  #resetRoundBtn {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--panel-border);
+    background: var(--panel); color: var(--text); font-size: 16px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; padding: 0;
+  }
 
   #leaderboard {
     display: none;
@@ -124,6 +130,8 @@
   #leaderboard li { margin-bottom: 6px; display: flex; justify-content: space-between; gap: 10px; }
   #leaderboard li { color: #ffffff; font-weight: 700; }
   #leaderboard li span.pts { color: #ffffff; font-weight: 700; }
+  #leaderboard li .lb-right { display: flex; gap: 14px; }
+  #leaderboard li .time { color: var(--muted); font-weight: 400; }
 
   #modeSelect { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
   .mode-btn { padding: 8px 14px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--panel); color: var(--text); font-weight: bold; cursor: pointer; font-size: 13px; }
@@ -199,7 +207,10 @@
 
   <div id="roundArea" style="display:none">
     <div id="personalScore">Your score this round: <span id="roundScoreVal">0</span></div>
-    <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
+    <div id="roundControls">
+      <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
+      <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
+    </div>
     <div id="boardWrap"><div id="board"></div></div>
   </div>
 
@@ -283,7 +294,8 @@
     list.innerHTML = "";
     top10.forEach((p) => {
       const li = document.createElement("li");
-      li.innerHTML = `<span>${p.name || "Player"}</span><span class="pts">${p.score || 0}</span>`;
+      const timeText = p.bestTime != null ? formatTime(p.bestTime) : "--:--";
+      li.innerHTML = `<span>${p.name || "Player"}</span><span class="lb-right"><span class="time">${timeText}</span><span class="pts">${p.score || 0}</span></span>`;
       list.appendChild(li);
     });
   });
@@ -343,6 +355,13 @@
   let cells = [];
   let roundActive = false;
   let roundScore = 0;
+  let roundStartTime = 0;
+
+  function formatTime(totalSeconds) {
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return `${m}:${String(s).padStart(2, "0")}`;
+  }
 
   function buildRawBoard() {
     const size = ROWS * COLS;
@@ -509,10 +528,18 @@
     renderBoard();
   }
 
+  window.resetRound = function () {
+    roundActive = false;
+    document.getElementById("roundIntroText").querySelector("span").textContent = "Round reset — ready to try again?";
+    document.getElementById("roundIntro").style.display = "block";
+    document.getElementById("roundArea").style.display = "none";
+  };
+
   window.startRound = function () {
     cells = generateSolvableBoard();
     roundActive = true;
     roundScore = 0;
+    roundStartTime = Date.now();
 
     document.getElementById("roundIntro").style.display = "none";
     document.getElementById("roundArea").style.display = "block";
@@ -549,16 +576,22 @@
       });
     }
     let finalScore = won ? roundScore + CLEAR_BOARD_BONUS : roundScore;
+    const elapsedSeconds = Math.floor((Date.now() - roundStartTime) / 1000);
+    const timeLabel = formatTime(elapsedSeconds);
+
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
       const player = current || { name: localStorage.getItem("ms_name") || "Player", score: 0 };
       player.score = (player.score || 0) + finalScore;
+      if (won && (!player.bestTime || elapsedSeconds < player.bestTime)) {
+        player.bestTime = elapsedSeconds;
+      }
       return player;
     });
 
     const result = document.getElementById("result");
     result.textContent = won
-      ? `YOU CLEARED THE BOARD! +${finalScore} points`
-      : `BOOM! You scored ${finalScore} points before hitting a mine.`;
+      ? `YOU CLEARED THE BOARD! +${finalScore} points — Time: ${timeLabel}`
+      : `BOOM! You scored ${finalScore} points before hitting a mine. Time: ${timeLabel}`;
 
     document.getElementById("roundIntroText").querySelector("span").textContent = "Ready for another round?";
     document.getElementById("roundIntro").style.display = "block";
