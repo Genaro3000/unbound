@@ -142,7 +142,34 @@
 
   #modeSelect { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
   .mode-btn { padding: 8px 14px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--panel); color: var(--text); font-weight: bold; cursor: pointer; font-size: 13px; }
-  .mode-btn.mode-active { background: #ffffff; color: #000000; border-color: #ffffff; }
+    .mode-btn.mode-active { background: #ffffff; color: #000000; border-color: #ffffff; }
+
+  #shopModal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px;
+  }
+  #shopBox {
+    background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px;
+    padding: 20px; width: 100%; max-width: 360px; text-align: left;
+  }
+  #shopBox h3 { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-display); margin: 0 0 14px; }
+  #coinsDisplay { color: var(--gold); font-size: 13px; }
+  .shop-item { border-top: 1px solid var(--panel-border); padding: 12px 0; }
+  .shop-item-name { font-weight: 700; margin-bottom: 4px; }
+  .shop-item-desc { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+  .shop-item-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .shop-item-row span { font-size: 12px; color: var(--muted); }
+  .shop-item-row button, #closeShopBtn {
+    padding: 8px 12px; border-radius: 8px; border: none; background: #ffffff; color: #000000;
+    font-weight: 700; font-size: 12px; cursor: pointer;
+  }
+  #closeShopBtn { width: 100%; margin-top: 14px; }
+
+  #itemBar { display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 12px; flex-wrap: wrap; font-size: 13px; }
+  #itemBar button {
+    padding: 6px 12px; border-radius: 8px; border: 1px solid var(--panel-border);
+    background: var(--panel); color: var(--text); cursor: pointer; font-size: 12px;
+  }
 
   #personalScore { font-family: var(--font-display); font-weight: 700; margin-bottom: 12px; }
 
@@ -203,11 +230,46 @@
     <ol id="lbList"></ol>
   </div>
 
+  <div id="shopModal" style="display:none">
+    <div id="shopBox">
+      <h3>🛒 Shop <span id="coinsDisplay">0 Coins</span></h3>
+
+      <div class="shop-item">
+        <div class="shop-item-name">🛡️ Shield</div>
+        <div class="shop-item-desc">Can be used once per round. Blocks one mine hit.</div>
+        <div class="shop-item-row">
+          <span id="shieldOwned">Owned: 0</span>
+          <button onclick="buyItem('shield')">Buy - 500 Coins</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">❄️ Time Freeze</div>
+        <div class="shop-item-desc">Shaves 5 seconds off your round time.</div>
+        <div class="shop-item-row">
+          <span id="timeFreezeOwned">Owned: 0</span>
+          <button onclick="buyItem('timeFreeze')">Buy - 750 Coins</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">⚡ Multiplier Boost</div>
+        <div class="shop-item-desc">Doubles your mine-flag points for the first 10s.</div>
+        <div class="shop-item-row">
+          <span id="multiplierOwned">Owned: 0</span>
+          <button onclick="buyItem('multiplier')">Buy - 1,000 Coins</button>
+        </div>
+      </div>
+
+      <button id="closeShopBtn" onclick="toggleShop()">Close</button>
+    </div>
+  </div>
+
   <div id="roundIntro">
     <p id="roundIntroText"><span>⚠️ Border Alert: Left connects to right, top connects to bottom.</span></p>
     <div id="modeSelect">
-      <button id="modeNormalBtn" class="mode-btn mode-active" onclick="setGameMode('normal')">Normal Mode</button>
-      <button id="modeExpertBtn" class="mode-btn" onclick="setGameMode('expert')">Expert Mode ☠️</button>
+      <button id="shopBtn" class="mode-btn" onclick="toggleShop()">Shop 🛒</button>
+      <button id="modeExpertBtn" class="mode-btn" onclick="toggleExpertMode()">Expert Mode ☠️</button>
     </div>
     <button id="playAgainBtn" onclick="startRound()">START ROUND</button>
   </div>
@@ -217,6 +279,11 @@
     <div id="roundControls">
       <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
       <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
+    </div>
+    <div id="itemBar">
+      <span id="shieldStatus">🛡️ x0</span>
+      <button id="useFreezeBtn" onclick="useTimeFreeze()">❄️ Use (<span id="freezeCount">0</span>)</button>
+      <button id="useMultBtn" onclick="useMultiplier()">⚡ Use (<span id="multCount">0</span>)</button>
     </div>
     <div id="boardWrap"><div id="board"></div></div>
   </div>
@@ -309,9 +376,8 @@
 
   // --- Modo toroidal (Expert Mode): bordes conectados + minas mas cerca de los bordes ---
   let toroidalMode = false;
-  window.setGameMode = function (mode) {
-    toroidalMode = (mode === "expert");
-    document.getElementById("modeNormalBtn").classList.toggle("mode-active", !toroidalMode);
+  window.toggleExpertMode = function () {
+    toroidalMode = !toroidalMode;
     document.getElementById("modeExpertBtn").classList.toggle("mode-active", toroidalMode);
   };
 
@@ -513,6 +579,65 @@
   const MINE_FLAG_POINTS = 2; // puntos por cada mina marcada correctamente
   const CLEAR_BOARD_BONUS = 56; // puntos por completar el tablero entero
 
+  // --- Tienda ---
+  const SHOP_PRICES = { shield: 500, timeFreeze: 750, multiplier: 1000 };
+  let myCoins = 0;
+  let myItems = { shield: 0, timeFreeze: 0, multiplier: 0 };
+  let timeCreditSeconds = 0;
+  let multiplierActiveUntil = 0;
+
+  onValue(ref(db, "players/current/" + playerId), (snap) => {
+    const me = snap.val();
+    if (!me) return;
+    myCoins = me.coins || 0;
+    myItems = me.items || { shield: 0, timeFreeze: 0, multiplier: 0 };
+    document.getElementById("coinsDisplay").textContent = `${myCoins} Coins`;
+    document.getElementById("shieldOwned").textContent = `Owned: ${myItems.shield || 0}`;
+    document.getElementById("timeFreezeOwned").textContent = `Owned: ${myItems.timeFreeze || 0}`;
+    document.getElementById("multiplierOwned").textContent = `Owned: ${myItems.multiplier || 0}`;
+    document.getElementById("shieldStatus").textContent = `🛡️ x${myItems.shield || 0}`;
+    document.getElementById("freezeCount").textContent = myItems.timeFreeze || 0;
+    document.getElementById("multCount").textContent = myItems.multiplier || 0;
+  });
+
+  let shopOpen = false;
+  window.toggleShop = function () {
+    shopOpen = !shopOpen;
+    document.getElementById("shopModal").style.display = shopOpen ? "flex" : "none";
+  };
+
+  window.buyItem = function (key) {
+    const price = SHOP_PRICES[key];
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current) return current;
+      if ((current.coins || 0) < price) return current;
+      current.coins = (current.coins || 0) - price;
+      current.items = current.items || { shield: 0, timeFreeze: 0, multiplier: 0 };
+      current.items[key] = (current.items[key] || 0) + 1;
+      return current;
+    });
+  };
+
+  window.useTimeFreeze = function () {
+    if (!roundActive || (myItems.timeFreeze || 0) <= 0) return;
+    timeCreditSeconds += 5;
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.timeFreeze) return current;
+      current.items.timeFreeze -= 1;
+      return current;
+    });
+  };
+
+  window.useMultiplier = function () {
+    if (!roundActive || (myItems.multiplier || 0) <= 0) return;
+    multiplierActiveUntil = Date.now() + 10000;
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.multiplier) return current;
+      current.items.multiplier -= 1;
+      return current;
+    });
+  };
+
   window.toggleFlagMode = function () {
     flagMode = !flagMode;
     document.getElementById("flagModeBtn").textContent = flagMode ? "⛏️ Switch to Dig" : "🚩 Switch to Flag";
@@ -529,7 +654,9 @@
     cells[idx].flagged = !cells[idx].flagged;
 
     if (cells[idx].mine) {
-      roundScore += cells[idx].flagged ? MINE_FLAG_POINTS : -MINE_FLAG_POINTS;
+      const boosted = Date.now() < multiplierActiveUntil;
+      const points = MINE_FLAG_POINTS * (boosted ? 2 : 1);
+      roundScore += cells[idx].flagged ? points : -points;
       document.getElementById("roundScoreVal").textContent = roundScore;
     }
     renderBoard();
@@ -544,6 +671,8 @@
     roundActive = true;
     roundScore = 0;
     roundStartTime = Date.now();
+    timeCreditSeconds = 0;
+    multiplierActiveUntil = 0;
 
     document.getElementById("roundIntro").style.display = "none";
     document.getElementById("roundArea").style.display = "block";
@@ -565,6 +694,17 @@
     });
 
     document.getElementById("roundScoreVal").textContent = roundScore;
+
+    if (hitMine && (myItems.shield || 0) > 0) {
+      myItems.shield -= 1;
+      runTransaction(ref(db, "players/current/" + playerId), (current) => {
+        if (!current || !current.items || !current.items.shield) return current;
+        current.items.shield -= 1;
+        return current;
+      });
+      hitMine = false;
+    }
+
     renderBoard();
 
     if (hitMine) { endRound(false); return; }
@@ -580,12 +720,13 @@
       });
     }
     let finalScore = won ? roundScore + CLEAR_BOARD_BONUS : roundScore;
-    const elapsedSeconds = Math.floor((Date.now() - roundStartTime) / 1000);
+    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - roundStartTime) / 1000) - timeCreditSeconds);
     const timeLabel = formatTime(elapsedSeconds);
 
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      const player = current || { name: localStorage.getItem("ms_name") || "Player", score: 0 };
+      const player = current || { name: localStorage.getItem("ms_name") || "Player", score: 0, coins: 0 };
       player.score = (player.score || 0) + finalScore;
+      player.coins = (player.coins || 0) + finalScore;
       if (won && (!player.bestTime || elapsedSeconds < player.bestTime)) {
         player.bestTime = elapsedSeconds;
       }
