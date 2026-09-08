@@ -529,10 +529,7 @@
   }
 
   window.resetRound = function () {
-    roundActive = false;
-    document.getElementById("roundIntroText").querySelector("span").textContent = "Round reset — ready to try again?";
-    document.getElementById("roundIntro").style.display = "block";
-    document.getElementById("roundArea").style.display = "none";
+    startRound();
   };
 
   window.startRound = function () {
