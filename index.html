@@ -150,7 +150,12 @@
   }
   #shopBox {
     background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px;
-    padding: 20px; width: 100%; max-width: 360px; text-align: left;
+    padding: 20px; width: 100%; max-width: 360px; max-height: 85vh; overflow-y: auto; text-align: left;
+  }
+  #shopNav { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 12px; color: var(--muted); }
+  #shopNav button {
+    padding: 6px 12px; border-radius: 8px; border: 1px solid var(--panel-border);
+    background: var(--bg); color: var(--text); cursor: pointer; font-size: 12px;
   }
   #shopBox h3 { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-display); margin: 0 0 14px; }
   #coinsDisplay { color: var(--gold); font-size: 13px; }
@@ -238,6 +243,7 @@
     <div id="shopBox">
       <h3>🛒 Shop <span id="coinsDisplay">0 Coins</span></h3>
 
+      <div class="shop-page" data-page="1">
       <div class="shop-item">
         <div class="shop-item-name">🛡️ Shield</div>
         <div class="shop-item-desc">Can be used once per round. Blocks one mine hit.</div>
@@ -282,7 +288,9 @@
           <button onclick="buyItem('angelRevive')">Buy - 1 Coin</button>
         </div>
       </div>
+      </div>
 
+      <div class="shop-page" data-page="2" style="display:none">
       <div class="shop-item">
         <div class="shop-item-name">⚡️ Adrenaline Shot</div>
         <div class="shop-item-desc">Clear the board in under 35s for a 1.5x score bonus.</div>
@@ -317,6 +325,13 @@
           <span id="sonarOwned">Owned: 0</span>
           <button onclick="buyItem('sonar')">Buy - 1 Coin</button>
         </div>
+      </div>
+      </div>
+
+      <div id="shopNav">
+        <button onclick="shopPage(-1)">◀ Prev</button>
+        <span id="shopPageLabel">Page 1 / 2</span>
+        <button onclick="shopPage(1)">Next ▶</button>
       </div>
 
       <button id="closeShopBtn" onclick="toggleShop()">Close</button>
@@ -677,10 +692,26 @@
   });
 
   let shopOpen = false;
+  let currentShopPage = 1;
+  const TOTAL_SHOP_PAGES = 2;
+
   window.toggleShop = function () {
     shopOpen = !shopOpen;
     document.getElementById("shopModal").style.display = shopOpen ? "flex" : "none";
+    if (shopOpen) { currentShopPage = 1; renderShopPage(); }
   };
+
+  window.shopPage = function (delta) {
+    currentShopPage = Math.min(TOTAL_SHOP_PAGES, Math.max(1, currentShopPage + delta));
+    renderShopPage();
+  };
+
+  function renderShopPage() {
+    document.querySelectorAll(".shop-page").forEach((el) => {
+      el.style.display = (+el.dataset.page === currentShopPage) ? "block" : "none";
+    });
+    document.getElementById("shopPageLabel").textContent = `Page ${currentShopPage} / ${TOTAL_SHOP_PAGES}`;
+  }
 
   window.buyItem = function (key) {
     const price = SHOP_PRICES[key];
