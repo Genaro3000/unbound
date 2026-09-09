@@ -199,7 +199,10 @@
   .cell:disabled { cursor: default; }
   .cell.revealed { background: var(--board-revealed); color: var(--text); }
     .cell.flagged { background: #ffffff; }
-  .cell.xray-flash { background: #ef4444 !important; color: #ffffff; }
+     .cell.xray-flash { background: #ef4444 !important; color: #ffffff; }
+  .cell.oracle-highlight { background: #22c55e !important; }
+  .cell.sonar-safe { background: #22c55e !important; }
+  .cell.sonar-mine { background: #ef4444 !important; color: #ffffff; }
 
   #result { font-family: var(--font-display); font-size: clamp(18px, 4vw, 24px); font-weight: 800; color: #38BDF8; margin-top: 16px; text-align: center; }
 
@@ -271,6 +274,51 @@
         </div>
       </div>
 
+      <div class="shop-item">
+        <div class="shop-item-name">🪽 Angel Revive</div>
+        <div class="shop-item-desc">Saves you from a fatal mine hit — adds a 5s penalty to your time.</div>
+        <div class="shop-item-row">
+          <span id="angelOwned">Owned: 0</span>
+          <button onclick="buyItem('angelRevive')">Buy - 1 Coin</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">⚡️ Adrenaline Shot</div>
+        <div class="shop-item-desc">Clear the board in under 35s for a 1.5x score bonus.</div>
+        <div class="shop-item-row">
+          <span id="adrenalineOwned">Owned: 0</span>
+          <button onclick="buyItem('adrenaline')">Buy - 1 Coin</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">🔮 Oracle</div>
+        <div class="shop-item-desc">Reveals a random safe tile in green for the rest of the round.</div>
+        <div class="shop-item-row">
+          <span id="oracleOwned">Owned: 0</span>
+          <button onclick="buyItem('oracle')">Buy - 1 Coin</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">⏪ Time Warp</div>
+        <div class="shop-item-desc">Clear the board and shave 10s off your final time.</div>
+        <div class="shop-item-row">
+          <span id="timeWarpOwned">Owned: 0</span>
+          <button onclick="buyItem('timeWarp')">Buy - 1 Coin</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">🎯 Sonar Pulse</div>
+        <div class="shop-item-desc">Scan a tile to flash its 3x3 area — green for safe, red for mines.</div>
+        <div class="shop-item-row">
+          <span id="sonarOwned">Owned: 0</span>
+          <button onclick="buyItem('sonar')">Buy - 1 Coin</button>
+        </div>
+      </div>
+
       <button id="closeShopBtn" onclick="toggleShop()">Close</button>
     </div>
   </div>
@@ -290,12 +338,17 @@
       <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
       <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
     </div>
-    <div id="itemBar">
+      <div id="itemBar">
       <span id="shieldStatus">🛡️ x0</span>
+      <span id="angelStatus">🪽 x0</span>
+      <span id="adrenalineStatus">⚡️ x0</span>
       <button id="useFreezeBtn" onclick="useTimeFreeze()">❄️ Use (<span id="freezeCount">0</span>)</button>
       <button id="useMultBtn" onclick="useMultiplier()">⚡ Use (<span id="multCount">0</span>)</button>
       <button id="useXrayBtn" onclick="useXray()">👁️ Use (<span id="xrayCount">0</span>)</button>
-    </div>
+      <button id="useOracleBtn" onclick="useOracle()">🔮 Use (<span id="oracleCount">0</span>)</button>
+      <button id="useTimeWarpBtn" onclick="useTimeWarp()">⏪ Use (<span id="timeWarpCount">0</span>)</button>
+      <button id="useSonarBtn" onclick="armSonar()">🎯 Use (<span id="sonarCount">0</span>)</button>
+    </div>  
     <div id="boardWrap"><div id="board"></div></div>
   </div>
 
@@ -591,7 +644,7 @@
   const CLEAR_BOARD_BONUS = 56; // puntos por completar el tablero entero
 
   // --- Tienda ---
-  const SHOP_PRICES = { shield: 1, timeFreeze: 1, multiplier: 1, xray: 1 };
+  const SHOP_PRICES = { shield: 1, timeFreeze: 1, multiplier: 1, xray: 1, angelRevive: 1, adrenaline: 1, oracle: 1, timeWarp: 1, sonar: 1 };
   let myCoins = 0;
   let myItems = { shield: 0, timeFreeze: 0, multiplier: 0 };
   let timeCreditSeconds = 0;
@@ -611,6 +664,16 @@
     document.getElementById("freezeCount").textContent = myItems.timeFreeze || 0;
     document.getElementById("multCount").textContent = myItems.multiplier || 0;
     document.getElementById("xrayCount").textContent = myItems.xray || 0;
+    document.getElementById("angelOwned").textContent = `Owned: ${myItems.angelRevive || 0}`;
+    document.getElementById("adrenalineOwned").textContent = `Owned: ${myItems.adrenaline || 0}`;
+    document.getElementById("oracleOwned").textContent = `Owned: ${myItems.oracle || 0}`;
+    document.getElementById("timeWarpOwned").textContent = `Owned: ${myItems.timeWarp || 0}`;
+    document.getElementById("sonarOwned").textContent = `Owned: ${myItems.sonar || 0}`;
+    document.getElementById("angelStatus").textContent = `🪽 x${myItems.angelRevive || 0}`;
+    document.getElementById("adrenalineStatus").textContent = `⚡️ x${myItems.adrenaline || 0}`;
+    document.getElementById("oracleCount").textContent = myItems.oracle || 0;
+    document.getElementById("timeWarpCount").textContent = myItems.timeWarp || 0;
+    document.getElementById("sonarCount").textContent = myItems.sonar || 0;
   });
 
   let shopOpen = false;
@@ -679,6 +742,62 @@
     });
   };
 
+  let oracleHighlightIdx = null;
+  let timeWarpActive = false;
+  let sonarArmed = false;
+  let timePenaltySeconds = 0;
+
+  window.useOracle = function () {
+    if (!roundActive || (myItems.oracle || 0) <= 0 || oracleHighlightIdx !== null) return;
+    const safeHidden = cells
+      .map((c, i) => (!c.mine && !c.revealed ? i : null))
+      .filter((i) => i !== null);
+    if (safeHidden.length === 0) return;
+    oracleHighlightIdx = safeHidden[Math.floor(Math.random() * safeHidden.length)];
+    renderBoard();
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.oracle) return current;
+      current.items.oracle -= 1;
+      return current;
+    });
+  };
+
+  window.useTimeWarp = function () {
+    if (!roundActive || (myItems.timeWarp || 0) <= 0 || timeWarpActive) return;
+    timeWarpActive = true;
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.timeWarp) return current;
+      current.items.timeWarp -= 1;
+      return current;
+    });
+  };
+
+  window.armSonar = function () {
+    if (!roundActive || (myItems.sonar || 0) <= 0 || sonarArmed) return;
+    sonarArmed = true;
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.sonar) return current;
+      current.items.sonar -= 1;
+      return current;
+    });
+  };
+
+  function fireSonar(row, col) {
+    const board = document.getElementById("board");
+    const flashed = [];
+    for (const [rr, cc] of [[row, col], ...getNeighbors(row, col)]) {
+      const idx = rr * COLS + cc;
+      if (cells[idx].revealed) continue;
+      const btn = board.children[idx];
+      if (!btn) continue;
+      btn.classList.add(cells[idx].mine ? "sonar-mine" : "sonar-safe");
+      flashed.push(btn);
+    }
+    setTimeout(() => {
+      flashed.forEach((btn) => btn.classList.remove("sonar-mine", "sonar-safe"));
+    }, 400);
+  }
+
   window.toggleFlagMode = function () {
     flagMode = !flagMode;
     document.getElementById("flagModeBtn").textContent = flagMode ? "⛏️ Switch to Dig" : "🚩 Switch to Flag";
@@ -714,6 +833,14 @@
     roundStartTime = Date.now();
     timeCreditSeconds = 0;
     multiplierActiveUntil = 0;
+    timePenaltySeconds = 0;
+    oracleHighlightIdx = null;
+    timeWarpActive = false;
+    sonarArmed = false;
+    timePenaltySeconds = 0;
+    oracleHighlightIdx = null;
+    timeWarpActive = false;
+    sonarArmed = false;
 
     document.getElementById("roundIntro").style.display = "none";
     document.getElementById("roundArea").style.display = "block";
@@ -727,11 +854,18 @@
     const idx = row * COLS + col;
     if (cells[idx].revealed || cells[idx].flagged) return;
 
+    if (sonarArmed) {
+      sonarArmed = false;
+      fireSonar(row, col);
+      return;
+    }
+
      const toReveal = floodFillOn(cells, row, col);
     let hitMine = false;
     toReveal.forEach((i) => {
       cells[i].revealed = true;
       if (cells[i].mine) hitMine = true;
+      if (i === oracleHighlightIdx) oracleHighlightIdx = null;
     });
 
     document.getElementById("roundScoreVal").textContent = roundScore;
@@ -741,6 +875,15 @@
       runTransaction(ref(db, "players/current/" + playerId), (current) => {
         if (!current || !current.items || !current.items.shield) return current;
         current.items.shield -= 1;
+        return current;
+      });
+      hitMine = false;
+    } else if (hitMine && (myItems.angelRevive || 0) > 0) {
+      myItems.angelRevive -= 1;
+      timePenaltySeconds += 5;
+      runTransaction(ref(db, "players/current/" + playerId), (current) => {
+        if (!current || !current.items || !current.items.angelRevive) return current;
+        current.items.angelRevive -= 1;
         return current;
       });
       hitMine = false;
@@ -761,8 +904,20 @@
       });
     }
     let finalScore = won ? roundScore + CLEAR_BOARD_BONUS : roundScore;
-    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - roundStartTime) / 1000) - timeCreditSeconds);
+    let timeAdjust = -timeCreditSeconds + timePenaltySeconds;
+    if (won && timeWarpActive) timeAdjust -= 10;
+    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - roundStartTime) / 1000) + timeAdjust);
     const timeLabel = formatTime(elapsedSeconds);
+
+    if (won && elapsedSeconds < 35 && (myItems.adrenaline || 0) > 0) {
+      finalScore = Math.round(finalScore * 1.5);
+      myItems.adrenaline -= 1;
+      runTransaction(ref(db, "players/current/" + playerId), (current) => {
+        if (!current || !current.items || !current.items.adrenaline) return current;
+        current.items.adrenaline -= 1;
+        return current;
+      });
+    }
 
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
       const player = current || { name: localStorage.getItem("ms_name") || "Player", score: 0, coins: 0 };
@@ -792,7 +947,8 @@
       for (let c = 0; c < COLS; c++) {
         const cell = cells[r * COLS + c];
         const btn = document.createElement("button");
-        btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "");
+        const idx2 = r * COLS + c;
+        btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "");
         btn.disabled = cell.revealed || !roundActive;
         if (cell.revealed) btn.textContent = cell.mine ? "💥" : (cell.adjacent || "");
         else if (cell.flagged) btn.textContent = "🚩";
