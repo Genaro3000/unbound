@@ -198,7 +198,8 @@
   .cell:hover:not(:disabled) { background: var(--board-hover); }
   .cell:disabled { cursor: default; }
   .cell.revealed { background: var(--board-revealed); color: var(--text); }
-  .cell.flagged { background: #ffffff; }
+    .cell.flagged { background: #ffffff; }
+  .cell.xray-flash { background: #ef4444 !important; color: #ffffff; }
 
   #result { font-family: var(--font-display); font-size: clamp(18px, 4vw, 24px); font-weight: 800; color: #38BDF8; margin-top: 16px; text-align: center; }
 
@@ -257,7 +258,16 @@
         <div class="shop-item-desc">Doubles your mine-flag points for the first 10s.</div>
         <div class="shop-item-row">
           <span id="multiplierOwned">Owned: 0</span>
-          <button onclick="buyItem('multiplier')">Buy - 1,000 Coins</button>
+          <button onclick="buyItem('multiplier')">Buy - 1 Coin</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">👁️ X-Ray Flash</div>
+        <div class="shop-item-desc">Flashes the location of 3 random mines for 0.3s at the start of the round.</div>
+        <div class="shop-item-row">
+          <span id="xrayOwned">Owned: 0</span>
+          <button onclick="buyItem('xray')">Buy - 1 Coin</button>
         </div>
       </div>
 
@@ -284,6 +294,7 @@
       <span id="shieldStatus">🛡️ x0</span>
       <button id="useFreezeBtn" onclick="useTimeFreeze()">❄️ Use (<span id="freezeCount">0</span>)</button>
       <button id="useMultBtn" onclick="useMultiplier()">⚡ Use (<span id="multCount">0</span>)</button>
+      <button id="useXrayBtn" onclick="useXray()">👁️ Use (<span id="xrayCount">0</span>)</button>
     </div>
     <div id="boardWrap"><div id="board"></div></div>
   </div>
@@ -580,7 +591,7 @@
   const CLEAR_BOARD_BONUS = 56; // puntos por completar el tablero entero
 
   // --- Tienda ---
-  const SHOP_PRICES = { shield: 1, timeFreeze: 1, multiplier: 1 };
+  const SHOP_PRICES = { shield: 1, timeFreeze: 1, multiplier: 1, xray: 1 };
   let myCoins = 0;
   let myItems = { shield: 0, timeFreeze: 0, multiplier: 0 };
   let timeCreditSeconds = 0;
@@ -595,9 +606,11 @@
     document.getElementById("shieldOwned").textContent = `Owned: ${myItems.shield || 0}`;
     document.getElementById("timeFreezeOwned").textContent = `Owned: ${myItems.timeFreeze || 0}`;
     document.getElementById("multiplierOwned").textContent = `Owned: ${myItems.multiplier || 0}`;
+    document.getElementById("xrayOwned").textContent = `Owned: ${myItems.xray || 0}`;
     document.getElementById("shieldStatus").textContent = `🛡️ x${myItems.shield || 0}`;
     document.getElementById("freezeCount").textContent = myItems.timeFreeze || 0;
     document.getElementById("multCount").textContent = myItems.multiplier || 0;
+    document.getElementById("xrayCount").textContent = myItems.xray || 0;
   });
 
   let shopOpen = false;
@@ -634,6 +647,34 @@
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
       if (!current || !current.items || !current.items.multiplier) return current;
       current.items.multiplier -= 1;
+      return current;
+    });
+  };
+
+  window.useXray = function () {
+    if (!roundActive || (myItems.xray || 0) <= 0) return;
+
+    const minePositions = cells
+      .map((c, i) => (c.mine && !c.revealed && !c.flagged ? i : null))
+      .filter((i) => i !== null);
+
+    const shown = [];
+    while (shown.length < 3 && minePositions.length > 0) {
+      const pick = Math.floor(Math.random() * minePositions.length);
+      shown.push(minePositions.splice(pick, 1)[0]);
+    }
+
+    const board = document.getElementById("board");
+    const flashedButtons = shown.map((idx) => board.children[idx]);
+    flashedButtons.forEach((btn) => { if (btn) btn.classList.add("xray-flash"); });
+
+    setTimeout(() => {
+      flashedButtons.forEach((btn) => { if (btn) btn.classList.remove("xray-flash"); });
+    }, 300);
+
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.xray) return current;
+      current.items.xray -= 1;
       return current;
     });
   };
