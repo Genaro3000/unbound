@@ -326,6 +326,15 @@
           <button onclick="buyItem('sonar')">Buy - 1 Coin</button>
         </div>
       </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">✨ Midas Spark</div>
+        <div class="shop-item-desc">Turns one random mine golden. Flag it for 10 points instead of 2 — but that flag can't be removed.</div>
+        <div class="shop-item-row">
+          <span id="midasOwned">Owned: 0</span>
+          <button onclick="buyItem('midasSpark')">Buy - 1 Coin</button>
+        </div>
+      </div>
       </div>
 
       <div id="shopNav">
@@ -362,7 +371,8 @@
       <button id="useXrayBtn" onclick="useXray()">👁️ Use (<span id="xrayCount">0</span>)</button>
       <button id="useOracleBtn" onclick="useOracle()">🔮 Use (<span id="oracleCount">0</span>)</button>
       <button id="useTimeWarpBtn" onclick="useTimeWarp()">⏪ Use (<span id="timeWarpCount">0</span>)</button>
-      <button id="useSonarBtn" onclick="armSonar()">🎯 Use (<span id="sonarCount">0</span>)</button>
+        <button id="useSonarBtn" onclick="armSonar()">🎯 Use (<span id="sonarCount">0</span>)</button>
+      <button id="useMidasBtn" onclick="useMidasSpark()">✨ Use (<span id="midasCount">0</span>)</button>
     </div>  
     <div id="boardWrap"><div id="board"></div></div>
   </div>
@@ -659,7 +669,7 @@
   const CLEAR_BOARD_BONUS = 56; // puntos por completar el tablero entero
 
   // --- Tienda ---
-  const SHOP_PRICES = { shield: 1, timeFreeze: 1, multiplier: 1, xray: 1, angelRevive: 1, adrenaline: 1, oracle: 1, timeWarp: 1, sonar: 1 };
+  const SHOP_PRICES = { shield: 1, timeFreeze: 1, multiplier: 1, xray: 1, angelRevive: 1, adrenaline: 1, oracle: 1, timeWarp: 1, sonar: 1, midasSpark: 1 };
   let myCoins = 0;
   let myItems = { shield: 0, timeFreeze: 0, multiplier: 0 };
   let timeCreditSeconds = 0;
@@ -688,7 +698,9 @@
     document.getElementById("adrenalineStatus").textContent = `⚡️ x${myItems.adrenaline || 0}`;
     document.getElementById("oracleCount").textContent = myItems.oracle || 0;
     document.getElementById("timeWarpCount").textContent = myItems.timeWarp || 0;
-    document.getElementById("sonarCount").textContent = myItems.sonar || 0;
+         document.getElementById("sonarCount").textContent = myItems.sonar || 0;
+    document.getElementById("midasOwned").textContent = `Owned: ${myItems.midasSpark || 0}`;
+    document.getElementById("midasCount").textContent = myItems.midasSpark || 0; 0;
   });
 
   let shopOpen = false;
@@ -777,6 +789,27 @@
   let timeWarpActive = false;
   let sonarArmed = false;
   let timePenaltySeconds = 0;
+  let midasUsedThisRound = false;
+  let goldenMineIdx = null;
+
+  window.useMidasSpark = function () {
+    if (!roundActive || (myItems.midasSpark || 0) <= 0 || midasUsedThisRound) return;
+
+    const hiddenMines = cells
+      .map((c, i) => (c.mine && !c.revealed && !c.flagged ? i : null))
+      .filter((i) => i !== null);
+    if (hiddenMines.length === 0) return;
+
+    goldenMineIdx = hiddenMines[Math.floor(Math.random() * hiddenMines.length)];
+    midasUsedThisRound = true;
+    renderBoard();
+
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.midasSpark) return current;
+      current.items.midasSpark -= 1;
+      return current;
+    });
+  };
 
   window.useOracle = function () {
     if (!roundActive || (myItems.oracle || 0) <= 0 || oracleHighlightIdx !== null) return;
@@ -842,12 +875,17 @@
   function toggleFlag(row, col) {
     const idx = row * COLS + col;
     if (!roundActive || cells[idx].revealed) return;
+    if (idx === goldenMineIdx && cells[idx].flagged) return; // la bandera golden ya no se puede sacar
     cells[idx].flagged = !cells[idx].flagged;
 
     if (cells[idx].mine) {
-      const boosted = Date.now() < multiplierActiveUntil;
-      const points = MINE_FLAG_POINTS * (boosted ? 2 : 1);
-      roundScore += cells[idx].flagged ? points : -points;
+      if (idx === goldenMineIdx) {
+        roundScore += 10;
+      } else {
+        const boosted = Date.now() < multiplierActiveUntil;
+        const points = MINE_FLAG_POINTS * (boosted ? 2 : 1);
+        roundScore += cells[idx].flagged ? points : -points;
+      }
       document.getElementById("roundScoreVal").textContent = roundScore;
     }
     renderBoard();
@@ -868,6 +906,8 @@
     oracleHighlightIdx = null;
     timeWarpActive = false;
     sonarArmed = false;
+    midasUsedThisRound = false;
+    goldenMineIdx = null;
     timePenaltySeconds = 0;
     oracleHighlightIdx = null;
     timeWarpActive = false;
@@ -930,8 +970,8 @@
   function endRound(won) {
     roundActive = false;
     if (won) {
-      cells.forEach((c) => {
-        if (c.mine && !c.flagged) roundScore += MINE_FLAG_POINTS;
+      cells.forEach((c, i) => {
+        if (c.mine && !c.flagged) roundScore += (i === goldenMineIdx ? 10 : MINE_FLAG_POINTS);
       });
     }
     let finalScore = won ? roundScore + CLEAR_BOARD_BONUS : roundScore;
@@ -982,7 +1022,7 @@
         btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "");
         btn.disabled = cell.revealed || !roundActive;
         if (cell.revealed) btn.textContent = cell.mine ? "💥" : (cell.adjacent || "");
-        else if (cell.flagged) btn.textContent = "🚩";
+        else if (cell.flagged) btn.textContent = (r * COLS + c === goldenMineIdx) ? "⭐" : "🚩";
         btn.onclick = () => cellClick(r, c);
         btn.oncontextmenu = (e) => { e.preventDefault(); toggleFlag(r, c); };
         board.appendChild(btn);
