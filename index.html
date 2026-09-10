@@ -152,7 +152,19 @@
     background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px;
     padding: 20px; width: 100%; max-width: 360px; max-height: 85vh; overflow-y: auto; text-align: left;
   }
-  #shopNav { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 12px; color: var(--muted); }
+    #shopNav, #custNav { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 12px; color: var(--muted); }
+  #shopTabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .shop-tab {
+    padding: 6px 12px; border-radius: 8px; border: 1px solid var(--panel-border);
+    background: var(--bg); color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 700;
+  }
+  .shop-tab.tab-active { background: #ffffff; color: #000000; }
+  .cust-intro { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+  #resetStabBtn {
+    width: 100%; margin-top: 14px; padding: 10px; border-radius: 8px; border: 1px dashed var(--panel-border);
+    background: var(--bg); color: var(--text); cursor: pointer; font-size: 12px; font-weight: 700;
+  }
+  .shop-item-row button.set-active { background: #38BDF8; }
   #shopNav button {
     padding: 6px 12px; border-radius: 8px; border: 1px solid var(--panel-border);
     background: var(--bg); color: var(--text); cursor: pointer; font-size: 12px;
@@ -243,6 +255,12 @@
     <div id="shopBox">
       <h3>🛒 Shop <span id="coinsDisplay">0 Coins</span></h3>
 
+      <div id="shopTabs">
+        <button id="tabItemsBtn" class="shop-tab tab-active" onclick="switchShopTab('items')">Items</button>
+        <button id="tabCustomizeBtn" class="shop-tab" style="display:none" onclick="switchShopTab('customize')">Customize ⚔️</button>
+      </div>
+
+      <div id="shopTabItems">
       <div class="shop-page" data-page="1">
       <div class="shop-item">
         <div class="shop-item-name">🛡️ Shield</div>
@@ -341,6 +359,35 @@
         <button onclick="shopPage(-1)">◀ Prev</button>
         <span id="shopPageLabel">Page 1 / 2</span>
         <button onclick="shopPage(1)">Next ▶</button>
+      </div>
+      </div>
+
+      <div id="shopTabCustomize" style="display:none">
+        <p class="cust-intro">Choose how digging and marking look in Radioactive Mines.</p>
+
+        <div class="cust-page" data-cpage="1">
+          <div class="shop-item"><div class="shop-item-name">⚡ Overvoltage</div><div class="shop-item-desc">Zap to mark. Marked tiles show ⚠️.</div><div class="shop-item-row"><button data-set="overvoltage" onclick="selectStabSet('overvoltage')">Select</button></div></div>
+          <div class="shop-item"><div class="shop-item-name">🐍 Apex Predator</div><div class="shop-item-desc">Bite to mark. Marked tiles show 🩸.</div><div class="shop-item-row"><button data-set="apex" onclick="selectStabSet('apex')">Select</button></div></div>
+          <div class="shop-item"><div class="shop-item-name">🔓 Vault Breaker</div><div class="shop-item-desc">Pick to mark. Marked tiles show 🔒.</div><div class="shop-item-row"><button data-set="vaultbreaker" onclick="selectStabSet('vaultbreaker')">Select</button></div></div>
+          <div class="shop-item"><div class="shop-item-name">🪓 Crimson Slasher</div><div class="shop-item-desc">Slash to mark. Marked tiles show ✖️.</div><div class="shop-item-row"><button data-set="crimson" onclick="selectStabSet('crimson')">Select</button></div></div>
+          <div class="shop-item"><div class="shop-item-name">💣 Heavy Demolition</div><div class="shop-item-desc">Blast to mark. Marked tiles show 💥.</div><div class="shop-item-row"><button data-set="demolition" onclick="selectStabSet('demolition')">Select</button></div></div>
+        </div>
+
+        <div class="cust-page" data-cpage="2" style="display:none">
+          <div class="shop-item"><div class="shop-item-name">🧪 Bio-Acid</div><div class="shop-item-desc">Purge to mark. Marked tiles show ☢️.</div><div class="shop-item-row"><button data-set="bioacid" onclick="selectStabSet('bioacid')">Select</button></div></div>
+          <div class="shop-item"><div class="shop-item-name">🔨 Heavy Hammer</div><div class="shop-item-desc">Smash to mark. Marked tiles show 🧱.</div><div class="shop-item-row"><button data-set="hammer" onclick="selectStabSet('hammer')">Select</button></div></div>
+          <div class="shop-item"><div class="shop-item-name">🏹 Phantom Sniper</div><div class="shop-item-desc">Snipe to mark. Marked tiles show 🎯.</div><div class="shop-item-row"><button data-set="sniper" onclick="selectStabSet('sniper')">Select</button></div></div>
+          <div class="shop-item"><div class="shop-item-name">🪤 Specter Hunter</div><div class="shop-item-desc">Hunt to mark. Marked tiles show 👻.</div><div class="shop-item-row"><button data-set="hunter" onclick="selectStabSet('hunter')">Select</button></div></div>
+          <div class="shop-item"><div class="shop-item-name">🔫 Deathshot</div><div class="shop-item-desc">Shoot to mark. Marked tiles show 💨.</div><div class="shop-item-row"><button data-set="deathshot" onclick="selectStabSet('deathshot')">Select</button></div></div>
+        </div>
+
+        <div id="custNav">
+          <button onclick="custPage(-1)">◀ Prev</button>
+          <span id="custPageLabel">Page 1 / 2</span>
+          <button onclick="custPage(1)">Next ▶</button>
+        </div>
+
+        <button id="resetStabBtn" data-set="stab" onclick="selectStabSet('stab')">Reset to Default (🗡️ Stab)</button>
       </div>
 
       <button id="closeShopBtn" onclick="toggleShop()">Close</button>
@@ -669,7 +716,60 @@
   let flagMode = false;
   const MINE_FLAG_POINTS = 2; // puntos por cada mina marcada correctamente
     const CLEAR_BOARD_BONUS = 56; // puntos por completar el tablero entero
-  const RADIOACTIVE_UNLOCK_SCORE = 1; // 👈 puntaje total necesario para desbloquear el modo
+    const RADIOACTIVE_UNLOCK_SCORE = 1; // 👈 puntaje total necesario para desbloquear el modo
+
+  const STAB_SETS = {
+    stab:        { name: "Stab",             digEmoji: "🗡️", digLabel: "Stab",  markEmoji: "⚔️" },
+    overvoltage: { name: "Overvoltage",      digEmoji: "⚡",  digLabel: "Zap",   markEmoji: "⚠️" },
+    apex:        { name: "Apex Predator",    digEmoji: "🐍",  digLabel: "Bite",  markEmoji: "🩸" },
+    vaultbreaker:{ name: "Vault Breaker",    digEmoji: "🔓",  digLabel: "Pick",  markEmoji: "🔒" },
+    crimson:     { name: "Crimson Slasher",  digEmoji: "🪓",  digLabel: "Slash", markEmoji: "✖️" },
+    demolition:  { name: "Heavy Demolition", digEmoji: "💣",  digLabel: "Blast", markEmoji: "💥" },
+    bioacid:     { name: "Bio-Acid",         digEmoji: "🧪",  digLabel: "Purge", markEmoji: "☢️" },
+    hammer:      { name: "Heavy Hammer",     digEmoji: "🔨",  digLabel: "Smash", markEmoji: "🧱" },
+    sniper:      { name: "Phantom Sniper",   digEmoji: "🏹",  digLabel: "Snipe", markEmoji: "🎯" },
+    hunter:      { name: "Specter Hunter",   digEmoji: "🪤",  digLabel: "Hunt",  markEmoji: "👻" },
+    deathshot:   { name: "Deathshot",        digEmoji: "🔫",  digLabel: "Shoot", markEmoji: "💨" }
+  };
+
+  function getStabSet() {
+    return STAB_SETS[localStorage.getItem("ms_stabset")] || STAB_SETS.stab;
+  }
+
+  window.selectStabSet = function (id) {
+    localStorage.setItem("ms_stabset", id);
+    document.querySelectorAll("[data-set]").forEach((btn) => {
+      btn.classList.toggle("set-active", btn.dataset.set === id);
+      btn.textContent = btn.dataset.set === id ? "Selected" : (btn.id === "resetStabBtn" ? btn.textContent : "Select");
+    });
+    if (radioactiveActive && !flagMode) {
+      const set = getStabSet();
+      document.getElementById("flagModeBtn").textContent = `${set.digEmoji} Switch to ${set.digLabel}`;
+    }
+  };
+
+  window.switchShopTab = function (tab) {
+    document.getElementById("shopTabItems").style.display = tab === "items" ? "block" : "none";
+    document.getElementById("shopTabCustomize").style.display = tab === "customize" ? "block" : "none";
+    document.getElementById("tabItemsBtn").classList.toggle("tab-active", tab === "items");
+    document.getElementById("tabCustomizeBtn").classList.toggle("tab-active", tab === "customize");
+    if (tab === "customize") {
+      const current = localStorage.getItem("ms_stabset") || "stab";
+      document.querySelectorAll("[data-set]").forEach((btn) => {
+        btn.classList.toggle("set-active", btn.dataset.set === current);
+        if (btn.id !== "resetStabBtn") btn.textContent = btn.dataset.set === current ? "Selected" : "Select";
+      });
+    }
+  };
+
+  let currentCustPage = 1;
+  window.custPage = function (delta) {
+    currentCustPage = Math.min(2, Math.max(1, currentCustPage + delta));
+    document.querySelectorAll(".cust-page").forEach((el) => {
+      el.style.display = (+el.dataset.cpage === currentCustPage) ? "block" : "none";
+    });
+    document.getElementById("custPageLabel").textContent = `Page ${currentCustPage} / 2`;
+  };
 
   // --- Tienda ---
   const SHOP_PRICES = { shield: 1, timeFreeze: 1, multiplier: 1, xray: 1, angelRevive: 1, adrenaline: 1, oracle: 1, timeWarp: 1, sonar: 1, midasSpark: 1 };
@@ -704,7 +804,8 @@
          document.getElementById("sonarCount").textContent = myItems.sonar || 0;
     document.getElementById("midasOwned").textContent = `Owned: ${myItems.midasSpark || 0}`;
         document.getElementById("midasCount").textContent = myItems.midasSpark || 0;
-    document.getElementById("radioactiveBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none"; 0;
+        document.getElementById("radioactiveBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
+    document.getElementById("tabCustomizeBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none"; 0;
   });
 
   let shopOpen = false;
@@ -822,7 +923,8 @@
     document.getElementById("radioactiveFloorRow").style.display = "block";
     document.getElementById("radioactiveFloor").textContent = "1";
     flagMode = false;
-    document.getElementById("flagModeBtn").textContent = "🗡️ Switch to Stab";
+    const startSet = getStabSet();
+    document.getElementById("flagModeBtn").textContent = `${startSet.digEmoji} Switch to ${startSet.digLabel}`;
     document.getElementById("result").textContent = "";
     document.getElementById("roundScoreVal").textContent = "0";
     renderBoard();
@@ -945,7 +1047,8 @@
   window.toggleFlagMode = function () {
     flagMode = !flagMode;
     if (radioactiveActive) {
-      document.getElementById("flagModeBtn").textContent = flagMode ? "🔦 Switch to Step" : "🗡️ Switch to Stab";
+      const set = getStabSet();
+      document.getElementById("flagModeBtn").textContent = flagMode ? "🔦 Switch to Step" : `${set.digEmoji} Switch to ${set.digLabel}`;
     } else {
       document.getElementById("flagModeBtn").textContent = flagMode ? "⛏️ Switch to Dig" : "🚩 Switch to Flag";
     }
@@ -1114,7 +1217,7 @@
         btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "");
         btn.disabled = cell.revealed || !roundActive;
         if (cell.revealed) btn.textContent = cell.mine ? "💥" : (cell.adjacent || "");
-        else if (cell.flagged) btn.textContent = (r * COLS + c === goldenMineIdx) ? "⭐" : (radioactiveActive ? "⚔️" : "🚩");
+          else if (cell.flagged) btn.textContent = (r * COLS + c === goldenMineIdx) ? "⭐" : (radioactiveActive ? getStabSet().markEmoji : "🚩");
         btn.onclick = () => cellClick(r, c);
         btn.oncontextmenu = (e) => { e.preventDefault(); toggleFlag(r, c); };
         board.appendChild(btn);
