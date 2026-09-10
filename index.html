@@ -108,15 +108,15 @@
 
     #leaderboardBtn, #flagModeBtn { width: auto; padding: 8px 14px; font-size: 13px; }
   #roundControls { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
-  #resetRoundBtn {
-    padding: 12px 18px;
+  #resetRoundBtn, #exitRoundBtn {
+    padding: 8px 14px;
     border-radius: 10px;
     border: none;
     background: #ffffff;
     color: #000000;
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 16px;
+    font-size: 13px;
     cursor: pointer;
     width: auto;
   }
@@ -409,7 +409,8 @@
     <div id="personalScore">Your score this round: <span id="roundScoreVal">0</span></div>
     <div id="roundControls">
       <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
-      <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
+          <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
+      <button id="exitRoundBtn" onclick="exitRound()" title="Exit to Main Screen">🏠</button>
     </div>
       <div id="itemBar">
       <span id="shieldStatus">🛡️ x0</span>
@@ -1081,6 +1082,21 @@
   window.resetRound = function () {
     if (radioactiveActive) return;
     startRound();
+  };
+
+  window.exitRound = function () {
+    roundActive = false;
+    document.getElementById("roundIntroText").querySelector("span").textContent = radioactiveActive
+      ? "Ready for another round?"
+      : "Ready for another round?";
+    if (radioactiveActive) {
+      radioactiveActive = false;
+      toroidalMode = toroidalBeforeRadioactive;
+      document.getElementById("modeExpertBtn").classList.toggle("mode-active", toroidalMode);
+      document.getElementById("radioactiveFloorRow").style.display = "none";
+    }
+    document.getElementById("roundIntro").style.display = "block";
+    document.getElementById("roundArea").style.display = "none";
   };
 
   window.startRound = function () {
