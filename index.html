@@ -352,11 +352,13 @@
     <div id="modeSelect">
       <button id="shopBtn" class="mode-btn" onclick="toggleShop()">Shop 🛒</button>
       <button id="modeExpertBtn" class="mode-btn" onclick="toggleExpertMode()">Expert Mode ☠️</button>
+      <button id="radioactiveBtn" class="mode-btn" style="display:none" onclick="startRadioactive()">☢️ Rad-Mines</button>
     </div>
     <button id="playAgainBtn" onclick="startRound()">START ROUND</button>
   </div>
 
   <div id="roundArea" style="display:none">
+        <div id="radioactiveFloorRow" style="display:none">Floor: <span id="radioactiveFloor">1</span></div>
     <div id="personalScore">Your score this round: <span id="roundScoreVal">0</span></div>
     <div id="roundControls">
       <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
@@ -666,7 +668,8 @@
 
   let flagMode = false;
   const MINE_FLAG_POINTS = 2; // puntos por cada mina marcada correctamente
-  const CLEAR_BOARD_BONUS = 56; // puntos por completar el tablero entero
+    const CLEAR_BOARD_BONUS = 56; // puntos por completar el tablero entero
+  const RADIOACTIVE_UNLOCK_SCORE = 1; // 👈 puntaje total necesario para desbloquear el modo
 
   // --- Tienda ---
   const SHOP_PRICES = { shield: 1, timeFreeze: 1, multiplier: 1, xray: 1, angelRevive: 1, adrenaline: 1, oracle: 1, timeWarp: 1, sonar: 1, midasSpark: 1 };
@@ -700,7 +703,8 @@
     document.getElementById("timeWarpCount").textContent = myItems.timeWarp || 0;
          document.getElementById("sonarCount").textContent = myItems.sonar || 0;
     document.getElementById("midasOwned").textContent = `Owned: ${myItems.midasSpark || 0}`;
-    document.getElementById("midasCount").textContent = myItems.midasSpark || 0; 0;
+        document.getElementById("midasCount").textContent = myItems.midasSpark || 0;
+    document.getElementById("radioactiveBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none"; 0;
   });
 
   let shopOpen = false;
@@ -791,6 +795,80 @@
   let timePenaltySeconds = 0;
   let midasUsedThisRound = false;
   let goldenMineIdx = null;
+  let radioactiveActive = false;
+  let currentFloor = 1;
+  let toroidalBeforeRadioactive = false;
+
+  window.startRadioactive = function () {
+    toroidalBeforeRadioactive = toroidalMode;
+    toroidalMode = true;
+    radioactiveActive = true;
+    currentFloor = 1;
+    roundScore = 0;
+    timeCreditSeconds = 0;
+    multiplierActiveUntil = 0;
+    timePenaltySeconds = 0;
+    oracleHighlightIdx = null;
+    timeWarpActive = false;
+    sonarArmed = false;
+    midasUsedThisRound = false;
+    goldenMineIdx = null;
+
+    cells = generateSolvableBoard();
+    roundActive = true;
+
+    document.getElementById("roundIntro").style.display = "none";
+    document.getElementById("roundArea").style.display = "block";
+    document.getElementById("radioactiveFloorRow").style.display = "block";
+    document.getElementById("radioactiveFloor").textContent = "1";
+    document.getElementById("result").textContent = "";
+    document.getElementById("roundScoreVal").textContent = "0";
+    renderBoard();
+  };
+
+  function advanceFloor() {
+    cells.forEach((c, i) => {
+      if (c.mine && !c.flagged) roundScore += (i === goldenMineIdx ? 10 : MINE_FLAG_POINTS);
+    });
+    roundScore += CLEAR_BOARD_BONUS;
+    currentFloor++;
+
+    oracleHighlightIdx = null;
+    goldenMineIdx = null;
+    midasUsedThisRound = false;
+    sonarArmed = false;
+
+    cells = generateSolvableBoard();
+    document.getElementById("radioactiveFloor").textContent = currentFloor;
+    document.getElementById("roundScoreVal").textContent = roundScore;
+    renderBoard();
+  }
+
+  function endRadioactiveRun() {
+    roundActive = false;
+    radioactiveActive = false;
+    toroidalMode = toroidalBeforeRadioactive;
+    document.getElementById("modeExpertBtn").classList.toggle("mode-active", toroidalMode);
+
+    const finalScore = roundScore;
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      const player = current || { name: localStorage.getItem("ms_name") || "Player", score: 0, coins: 0 };
+      player.score = (player.score || 0) + finalScore;
+      player.coins = (player.coins || 0) + finalScore;
+      return player;
+    });
+
+    const reachedFloor = currentFloor;
+    currentFloor = 1;
+
+    const result = document.getElementById("result");
+    result.textContent = `☢️ RUN OVER! Reached Floor ${reachedFloor} — +${finalScore} points`;
+
+    document.getElementById("radioactiveFloorRow").style.display = "none";
+    document.getElementById("roundIntroText").querySelector("span").textContent = "Ready for another round?";
+    document.getElementById("roundIntro").style.display = "block";
+    document.getElementById("roundArea").style.display = "none";
+  }
 
   window.useMidasSpark = function () {
     if (!roundActive || (myItems.midasSpark || 0) <= 0 || midasUsedThisRound) return;
@@ -962,9 +1040,16 @@
 
     renderBoard();
 
-    if (hitMine) { endRound(false); return; }
+    if (hitMine) {
+      if (radioactiveActive) endRadioactiveRun();
+      else endRound(false);
+      return;
+    }
     const remainingSafe = cells.filter(c => !c.mine && !c.revealed).length;
-    if (remainingSafe === 0) endRound(true);
+    if (remainingSafe === 0) {
+      if (radioactiveActive) advanceFloor();
+      else endRound(true);
+    }
   };
 
   function endRound(won) {
