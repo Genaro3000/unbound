@@ -1114,7 +1114,7 @@
         btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "");
         btn.disabled = cell.revealed || !roundActive;
         if (cell.revealed) btn.textContent = cell.mine ? "💥" : (cell.adjacent || "");
-        else if (cell.flagged) btn.textContent = (r * COLS + c === goldenMineIdx) ? "⭐" : "🚩";
+        else if (cell.flagged) btn.textContent = (r * COLS + c === goldenMineIdx) ? "⭐" : (radioactiveActive ? "⚔️" : "🚩");
         btn.onclick = () => cellClick(r, c);
         btn.oncontextmenu = (e) => { e.preventDefault(); toggleFlag(r, c); };
         board.appendChild(btn);
