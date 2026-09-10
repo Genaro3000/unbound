@@ -821,6 +821,8 @@
     document.getElementById("roundArea").style.display = "block";
     document.getElementById("radioactiveFloorRow").style.display = "block";
     document.getElementById("radioactiveFloor").textContent = "1";
+    flagMode = false;
+    document.getElementById("flagModeBtn").textContent = "🗡️ Switch to Stab";
     document.getElementById("result").textContent = "";
     document.getElementById("roundScoreVal").textContent = "0";
     renderBoard();
@@ -942,7 +944,11 @@
 
   window.toggleFlagMode = function () {
     flagMode = !flagMode;
-    document.getElementById("flagModeBtn").textContent = flagMode ? "⛏️ Switch to Dig" : "🚩 Switch to Flag";
+    if (radioactiveActive) {
+      document.getElementById("flagModeBtn").textContent = flagMode ? "🔦 Switch to Step" : "🗡️ Switch to Stab";
+    } else {
+      document.getElementById("flagModeBtn").textContent = flagMode ? "⛏️ Switch to Dig" : "🚩 Switch to Flag";
+    }
   };
 
   window.cellClick = function (row, col) {
@@ -970,6 +976,7 @@
   }
 
   window.resetRound = function () {
+    if (radioactiveActive) return;
     startRound();
   };
 
