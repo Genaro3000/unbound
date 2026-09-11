@@ -183,6 +183,7 @@
   #closeShopBtn { width: 100%; margin-top: 14px; }
 
   #itemBar { display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 12px; flex-wrap: wrap; font-size: 13px; }
+    #mineralBar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; font-size: 12px; color: var(--muted); }
   #itemBar button {
     padding: 6px 12px; border-radius: 8px; border: 1px solid var(--panel-border);
     background: var(--panel); color: var(--text); cursor: pointer; font-size: 12px;
@@ -424,6 +425,14 @@
         <button id="useSonarBtn" onclick="armSonar()">🎯 Use (<span id="sonarCount">0</span>)</button>
       <button id="useMidasBtn" onclick="useMidasSpark()">✨ Use (<span id="midasCount">0</span>)</button>
     </div>  
+        <div id="mineralBar">
+      <span>🟠 x<span id="mCopper">0</span></span>
+      <span>🪙 x<span id="mSilver">0</span></span>
+      <span>💰 x<span id="mGold">0</span></span>
+      <span>💎 x<span id="mPlatinum">0</span></span>
+      <span>🌿 x<span id="mChloro">0</span></span>
+      <span>🌟 x<span id="mHallowed">0</span></span>
+    </div>
     <div id="boardWrap"><div id="board"></div></div>
   </div>
 
@@ -561,6 +570,45 @@
       }
     }
     return chosen;
+  }
+
+  // --- Minerales (solo en Radioactive Mines) ---
+  const MINERAL_TIERS = {
+    copper:      { emoji: "🟠", color: "#B87333" },
+    silver:      { emoji: "🪙", color: "#C0C0C0" },
+    gold:        { emoji: "💰", color: "#FFD700" },
+    platinum:    { emoji: "💎", color: "#00FFFF" },
+    chlorophyte: { emoji: "🌿", color: "#39FF14" },
+    hallowed:    { emoji: "🌟", color: "#FF00FF" }
+  };
+
+  function mineralOddsForFloor(floor) {
+    if (floor <= 10) return { copper: 0.75, silver: 0.25 };
+    if (floor <= 20) return { silver: 0.50, gold: 0.35, platinum: 0.15 };
+    if (floor <= 39) return { gold: 0.20, platinum: 0.45, chlorophyte: 0.30, hallowed: 0.05 };
+    return { platinum: 0.20, chlorophyte: 0.50, hallowed: 0.30 };
+  }
+
+  function rollMineralTier(floor) {
+    const odds = mineralOddsForFloor(floor);
+    const r = Math.random();
+    let cumulative = 0;
+    for (const tier in odds) {
+      cumulative += odds[tier];
+      if (r <= cumulative) return tier;
+    }
+    return Object.keys(odds)[0];
+  }
+
+  let myMinerals = { copper: 0, silver: 0, gold: 0, platinum: 0, chlorophyte: 0, hallowed: 0 };
+
+  function renderMineralBar() {
+    document.getElementById("mCopper").textContent = myMinerals.copper || 0;
+    document.getElementById("mSilver").textContent = myMinerals.silver || 0;
+    document.getElementById("mGold").textContent = myMinerals.gold || 0;
+    document.getElementById("mPlatinum").textContent = myMinerals.platinum || 0;
+    document.getElementById("mChloro").textContent = myMinerals.chlorophyte || 0;
+    document.getElementById("mHallowed").textContent = myMinerals.hallowed || 0;
   }
 
   // --- Ronda individual ---
@@ -782,8 +830,11 @@
   onValue(ref(db, "players/current/" + playerId), (snap) => {
     const me = snap.val();
     if (!me) return;
+Reemplazar:
     myCoins = me.coins || 0;
     myItems = me.items || { shield: 0, timeFreeze: 0, multiplier: 0 };
+    myMinerals = me.minerals || { copper: 0, silver: 0, gold: 0, platinum: 0, chlorophyte: 0, hallowed: 0 };
+    renderMineralBar();
     document.getElementById("coinsDisplay").textContent = `${myCoins} Coins`;
     document.getElementById("shieldOwned").textContent = `Owned: ${myItems.shield || 0}`;
     document.getElementById("timeFreezeOwned").textContent = `Owned: ${myItems.timeFreeze || 0}`;
@@ -936,6 +987,17 @@
       if (c.mine && !c.flagged) roundScore += (i === goldenMineIdx ? 10 : MINE_FLAG_POINTS);
     });
     roundScore += CLEAR_BOARD_BONUS;
+
+    const droppedTier = rollMineralTier(currentFloor);
+    myMinerals[droppedTier] = (myMinerals[droppedTier] || 0) + 1;
+    renderMineralBar();
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current) return current;
+      current.minerals = current.minerals || {};
+      current.minerals[droppedTier] = (current.minerals[droppedTier] || 0) + 1;
+      return current;
+    });
+
     currentFloor++;
 
     oracleHighlightIdx = null;
@@ -1141,6 +1203,10 @@
       cells[i].revealed = true;
       if (cells[i].mine) hitMine = true;
       if (i === oracleHighlightIdx) oracleHighlightIdx = null;
+      if (radioactiveActive && !cells[i].mine && Math.random() < 0.12) {
+        const veinTier = rollMineralTier(currentFloor);
+        cells[i].veinColor = MINERAL_TIERS[veinTier].color;
+      }
     });
 
     document.getElementById("roundScoreVal").textContent = roundScore;
@@ -1232,7 +1298,10 @@
         const idx2 = r * COLS + c;
         btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "");
         btn.disabled = cell.revealed || !roundActive;
-        if (cell.revealed) btn.textContent = cell.mine ? "💥" : (cell.adjacent || "");
+               if (cell.revealed) {
+          btn.textContent = cell.mine ? "💥" : (cell.adjacent || "");
+          if (cell.veinColor) btn.style.boxShadow = `inset 0 0 0 2px ${cell.veinColor}`;
+        }
           else if (cell.flagged) btn.textContent = (r * COLS + c === goldenMineIdx) ? "⭐" : (radioactiveActive ? getStabSet().markEmoji : "🚩");
         btn.onclick = () => cellClick(r, c);
         btn.oncontextmenu = (e) => { e.preventDefault(); toggleFlag(r, c); };
