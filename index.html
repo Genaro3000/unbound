@@ -220,7 +220,8 @@
      .cell.xray-flash { background: #ef4444 !important; color: #ffffff; }
   .cell.oracle-highlight { background: #22c55e !important; }
   .cell.sonar-safe { background: #22c55e !important; }
-  .cell.sonar-mine { background: #ef4444 !important; color: #ffffff; }
+    .cell.sonar-mine { background: #ef4444 !important; color: #ffffff; }
+  .cell.smoke-safe { background: #ffffff !important; }
 
   #result { font-family: var(--font-display); font-size: clamp(18px, 4vw, 24px); font-weight: 800; color: #38BDF8; margin-top: 16px; text-align: center; }
 
@@ -282,20 +283,11 @@
       </div>
 
       <div class="shop-item">
-        <div class="shop-item-name">⚡ Multiplier Boost</div>
-        <div class="shop-item-desc">Doubles your mine-flag points for the first 10s.</div>
+        <div class="shop-item-name">💨 Smoke Bomb</div>
+        <div class="shop-item-desc">Click a tile to clear all mines from its 2x2 area, making it guaranteed safe.</div>
         <div class="shop-item-row">
-          <span id="multiplierOwned">Owned: 0</span>
-          <button onclick="buyItem('multiplier')">Buy - 1 Coin</button>
-        </div>
-      </div>
-
-      <div class="shop-item">
-        <div class="shop-item-name">👁️ X-Ray Flash</div>
-        <div class="shop-item-desc">Flashes the location of 3 random mines for 0.3s at the start of the round.</div>
-        <div class="shop-item-row">
-          <span id="xrayOwned">Owned: 0</span>
-          <button onclick="buyItem('xray')">Buy - 1 Coin</button>
+          <span id="smokeOwned">Owned: 0</span>
+          <button onclick="buyItem('smokeBomb')">Buy - 1 Coin</button>
         </div>
       </div>
 
@@ -328,14 +320,6 @@
         </div>
       </div>
 
-      <div class="shop-item">
-        <div class="shop-item-name">⏪ Time Warp</div>
-        <div class="shop-item-desc">Clear the board and shave 10s off your final time.</div>
-        <div class="shop-item-row">
-          <span id="timeWarpOwned">Owned: 0</span>
-          <button onclick="buyItem('timeWarp')">Buy - 1 Coin</button>
-        </div>
-      </div>
 
       <div class="shop-item">
         <div class="shop-item-name">🎯 Sonar Pulse</div>
@@ -412,18 +396,15 @@
       <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
           <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
       <button id="exitRoundBtn" onclick="exitRound()" title="Exit to Main Screen">🏠</button>
-    </div>
-      <div id="itemBar">
+    <div id="itemBar">
       <span id="shieldStatus">🛡️ x0</span>
       <span id="angelStatus">🪽 x0</span>
-      <span id="adrenalineStatus">⚡️ x0</span>
+      <span id="adrenalineStatus">💉 x0</span>
       <button id="useFreezeBtn" onclick="useTimeFreeze()">❄️ Use (<span id="freezeCount">0</span>)</button>
-      <button id="useMultBtn" onclick="useMultiplier()">⚡ Use (<span id="multCount">0</span>)</button>
-      <button id="useXrayBtn" onclick="useXray()">👁️ Use (<span id="xrayCount">0</span>)</button>
       <button id="useOracleBtn" onclick="useOracle()">🔮 Use (<span id="oracleCount">0</span>)</button>
-      <button id="useTimeWarpBtn" onclick="useTimeWarp()">⏪ Use (<span id="timeWarpCount">0</span>)</button>
-        <button id="useSonarBtn" onclick="armSonar()">🎯 Use (<span id="sonarCount">0</span>)</button>
+      <button id="useSonarBtn" onclick="armSonar()">🎯 Use (<span id="sonarCount">0</span>)</button>
       <button id="useMidasBtn" onclick="useMidasSpark()">✨ Use (<span id="midasCount">0</span>)</button>
+      <button id="useSmokeBtn" onclick="useSmokeBomb()">💨 Use (<span id="smokeCount">0</span>)</button>
     </div>  
         <div id="mineralBar">
       <span>🟠 x<span id="mCopper">0</span></span>
@@ -821,7 +802,7 @@
   };
 
   // --- Tienda ---
-  const SHOP_PRICES = { shield: 1, timeFreeze: 1, multiplier: 1, xray: 1, angelRevive: 1, adrenaline: 1, oracle: 1, timeWarp: 1, sonar: 1, midasSpark: 1 };
+  const SHOP_PRICES = { shield: 1, timeFreeze: 1, angelRevive: 1, adrenaline: 1, oracle: 1, sonar: 1, midasSpark: 1, smokeBomb: 1 };
   let myCoins = 0;
   let myItems = { shield: 0, timeFreeze: 0, multiplier: 0 };
   let timeCreditSeconds = 0;
@@ -837,25 +818,21 @@ Reemplazar:
     renderMineralBar();
     document.getElementById("coinsDisplay").textContent = `${myCoins} Coins`;
     document.getElementById("shieldOwned").textContent = `Owned: ${myItems.shield || 0}`;
-    document.getElementById("timeFreezeOwned").textContent = `Owned: ${myItems.timeFreeze || 0}`;
-    document.getElementById("multiplierOwned").textContent = `Owned: ${myItems.multiplier || 0}`;
-    document.getElementById("xrayOwned").textContent = `Owned: ${myItems.xray || 0}`;
+    document.getElementById("timeFreezeOwned").textContent = `Owned: ${myItems.timeFreeze || 0}`; 
     document.getElementById("shieldStatus").textContent = `🛡️ x${myItems.shield || 0}`;
-    document.getElementById("freezeCount").textContent = myItems.timeFreeze || 0;
-    document.getElementById("multCount").textContent = myItems.multiplier || 0;
-    document.getElementById("xrayCount").textContent = myItems.xray || 0;
+    document.getElementById("freezeCount").textContent = myItems.timeFreeze || 0; 
     document.getElementById("angelOwned").textContent = `Owned: ${myItems.angelRevive || 0}`;
     document.getElementById("adrenalineOwned").textContent = `Owned: ${myItems.adrenaline || 0}`;
-    document.getElementById("oracleOwned").textContent = `Owned: ${myItems.oracle || 0}`;
-    document.getElementById("timeWarpOwned").textContent = `Owned: ${myItems.timeWarp || 0}`;
+    document.getElementById("oracleOwned").textContent = `Owned: ${myItems.oracle || 0}`;  
     document.getElementById("sonarOwned").textContent = `Owned: ${myItems.sonar || 0}`;
     document.getElementById("angelStatus").textContent = `🪽 x${myItems.angelRevive || 0}`;
-    document.getElementById("adrenalineStatus").textContent = `⚡️ x${myItems.adrenaline || 0}`;
+    document.getElementById("adrenalineStatus").textContent = `💉 x${myItems.adrenaline || 0}`;
     document.getElementById("oracleCount").textContent = myItems.oracle || 0;
-    document.getElementById("timeWarpCount").textContent = myItems.timeWarp || 0;
          document.getElementById("sonarCount").textContent = myItems.sonar || 0;
     document.getElementById("midasOwned").textContent = `Owned: ${myItems.midasSpark || 0}`;
-        document.getElementById("midasCount").textContent = myItems.midasSpark || 0;
+            document.getElementById("midasCount").textContent = myItems.midasSpark || 0;
+    document.getElementById("smokeOwned").textContent = `Owned: ${myItems.smokeBomb || 0}`;
+    document.getElementById("smokeCount").textContent = myItems.smokeBomb || 0;
         document.getElementById("radioactiveBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
     document.getElementById("tabCustomizeBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none"; 0;
   });
@@ -904,47 +881,13 @@ Reemplazar:
     });
   };
 
-  window.useMultiplier = function () {
-    if (!roundActive || (myItems.multiplier || 0) <= 0) return;
-    multiplierActiveUntil = Date.now() + 10000;
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.multiplier) return current;
-      current.items.multiplier -= 1;
-      return current;
-    });
-  };
 
-  window.useXray = function () {
-    if (!roundActive || (myItems.xray || 0) <= 0) return;
 
-    const minePositions = cells
-      .map((c, i) => (c.mine && !c.revealed && !c.flagged ? i : null))
-      .filter((i) => i !== null);
 
-    const shown = [];
-    while (shown.length < 3 && minePositions.length > 0) {
-      const pick = Math.floor(Math.random() * minePositions.length);
-      shown.push(minePositions.splice(pick, 1)[0]);
-    }
-
-    const board = document.getElementById("board");
-    const flashedButtons = shown.map((idx) => board.children[idx]);
-    flashedButtons.forEach((btn) => { if (btn) btn.classList.add("xray-flash"); });
-
-    setTimeout(() => {
-      flashedButtons.forEach((btn) => { if (btn) btn.classList.remove("xray-flash"); });
-    }, 300);
-
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.xray) return current;
-      current.items.xray -= 1;
-      return current;
-    });
-  };
 
   let oracleHighlightIdx = null;
-  let timeWarpActive = false;
   let sonarArmed = false;
+  let smokeArmed = false;
   let timePenaltySeconds = 0;
   let midasUsedThisRound = false;
   let goldenMineIdx = null;
@@ -959,11 +902,10 @@ Reemplazar:
     currentFloor = 1;
     roundScore = 0;
     timeCreditSeconds = 0;
-    multiplierActiveUntil = 0;
     timePenaltySeconds = 0;
     oracleHighlightIdx = null;
-    timeWarpActive = false;
     sonarArmed = false;
+    smokeArmed = false;
     midasUsedThisRound = false;
     goldenMineIdx = null;
 
@@ -989,12 +931,13 @@ Reemplazar:
     roundScore += CLEAR_BOARD_BONUS;
 
     const droppedTier = rollMineralTier(currentFloor);
-    myMinerals[droppedTier] = (myMinerals[droppedTier] || 0) + 1;
+    const MINERAL_DROP_AMOUNT = 25; // 👈 cuantos ores te da cada drop
+    myMinerals[droppedTier] = (myMinerals[droppedTier] || 0) + MINERAL_DROP_AMOUNT;
     renderMineralBar();
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
       if (!current) return current;
       current.minerals = current.minerals || {};
-      current.minerals[droppedTier] = (current.minerals[droppedTier] || 0) + 1;
+      current.minerals[droppedTier] = (current.minerals[droppedTier] || 0) + MINERAL_DROP_AMOUNT;
       return current;
     });
 
@@ -1071,15 +1014,7 @@ Reemplazar:
     });
   };
 
-  window.useTimeWarp = function () {
-    if (!roundActive || (myItems.timeWarp || 0) <= 0 || timeWarpActive) return;
-    timeWarpActive = true;
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.timeWarp) return current;
-      current.items.timeWarp -= 1;
-      return current;
-    });
-  };
+
 
   window.armSonar = function () {
     if (!roundActive || (myItems.sonar || 0) <= 0 || sonarArmed) return;
@@ -1107,6 +1042,52 @@ Reemplazar:
     }, 400);
   }
 
+  window.useSmokeBomb = function () {
+    if (!roundActive || (myItems.smokeBomb || 0) <= 0 || smokeArmed) return;
+    smokeArmed = true;
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.smokeBomb) return current;
+      current.items.smokeBomb -= 1;
+      return current;
+    });
+  };
+
+  function recomputeAdjacents() {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const idx = r * COLS + c;
+        if (cells[idx].mine) continue;
+        let n = 0;
+        for (const [rr, cc] of getNeighbors(r, c)) {
+          if (cells[rr * COLS + cc].mine) n++;
+        }
+        cells[idx].adjacent = n;
+      }
+    }
+  }
+
+  function applySmokeBomb(row, col) {
+    const targets = [];
+    for (let dr = 0; dr <= 1; dr++) {
+      for (let dc = 0; dc <= 1; dc++) {
+        let rr = row + dr, cc = col + dc;
+        if (toroidalMode) {
+          rr = ((rr % ROWS) + ROWS) % ROWS;
+          cc = ((cc % COLS) + COLS) % COLS;
+        } else if (rr >= ROWS || cc >= COLS) {
+          continue;
+        }
+        targets.push(rr * COLS + cc);
+      }
+    }
+    targets.forEach((idx) => {
+      cells[idx].mine = false;
+      cells[idx].smokeSafe = true;
+    });
+    recomputeAdjacents();
+    renderBoard();
+  }
+
   window.toggleFlagMode = function () {
     flagMode = !flagMode;
     if (radioactiveActive) {
@@ -1132,9 +1113,7 @@ Reemplazar:
       if (idx === goldenMineIdx) {
         roundScore += 10;
       } else {
-        const boosted = Date.now() < multiplierActiveUntil;
-        const points = MINE_FLAG_POINTS * (boosted ? 2 : 1);
-        roundScore += cells[idx].flagged ? points : -points;
+        roundScore += cells[idx].flagged ? MINE_FLAG_POINTS : -MINE_FLAG_POINTS;
       }
       document.getElementById("roundScoreVal").textContent = roundScore;
     }
@@ -1167,11 +1146,10 @@ Reemplazar:
     roundScore = 0;
     roundStartTime = Date.now();
     timeCreditSeconds = 0;
-    multiplierActiveUntil = 0;
     timePenaltySeconds = 0;
     oracleHighlightIdx = null;
-    timeWarpActive = false;
     sonarArmed = false;
+    smokeArmed = false;
     midasUsedThisRound = false;
     goldenMineIdx = null;
     timePenaltySeconds = 0;
@@ -1194,6 +1172,12 @@ Reemplazar:
     if (sonarArmed) {
       sonarArmed = false;
       fireSonar(row, col);
+      return;
+    }
+
+    if (smokeArmed) {
+      smokeArmed = false;
+      applySmokeBomb(row, col);
       return;
     }
 
@@ -1253,7 +1237,6 @@ Reemplazar:
     }
     let finalScore = won ? roundScore + CLEAR_BOARD_BONUS : roundScore;
     let timeAdjust = -timeCreditSeconds + timePenaltySeconds;
-    if (won && timeWarpActive) timeAdjust -= 10;
     const elapsedSeconds = Math.max(0, Math.floor((Date.now() - roundStartTime) / 1000) + timeAdjust);
     const timeLabel = formatTime(elapsedSeconds);
 
@@ -1296,8 +1279,7 @@ Reemplazar:
         const cell = cells[r * COLS + c];
         const btn = document.createElement("button");
         const idx2 = r * COLS + c;
-        btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "");
-        btn.disabled = cell.revealed || !roundActive;
+        btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "") + (cell.smokeSafe && !cell.revealed ? " smoke-safe" : "");        btn.disabled = cell.revealed || !roundActive;
                if (cell.revealed) {
           btn.textContent = cell.mine ? "💥" : (cell.adjacent || "");
           if (cell.veinColor) btn.style.boxShadow = `inset 0 0 0 2px ${cell.veinColor}`;
