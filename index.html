@@ -394,8 +394,9 @@
     <div id="personalScore">Your score this round: <span id="roundScoreVal">0</span></div>
     <div id="roundControls">
       <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
-          <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
+      <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
       <button id="exitRoundBtn" onclick="exitRound()" title="Exit to Main Screen">🏠</button>
+    </div>
     <div id="itemBar">
       <span id="shieldStatus">🛡️ x0</span>
       <span id="angelStatus">🪽 x0</span>
@@ -834,7 +835,7 @@ Reemplazar:
     document.getElementById("smokeOwned").textContent = `Owned: ${myItems.smokeBomb || 0}`;
     document.getElementById("smokeCount").textContent = myItems.smokeBomb || 0;
         document.getElementById("radioactiveBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
-    document.getElementById("tabCustomizeBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none"; 0;
+    document.getElementById("tabCustomizeBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
   });
 
   let shopOpen = false;
@@ -1152,13 +1153,8 @@ Reemplazar:
     smokeArmed = false;
     midasUsedThisRound = false;
     goldenMineIdx = null;
-    timePenaltySeconds = 0;
-    oracleHighlightIdx = null;
-    timeWarpActive = false;
-    sonarArmed = false;
 
-    document.getElementById("roundIntro").style.display = "none";
-    document.getElementById("roundArea").style.display = "block";
+    document.getElementById("roundIntro").style.display = "none";    document.getElementById("roundArea").style.display = "block";
     document.getElementById("result").textContent = "";
     document.getElementById("roundScoreVal").textContent = "0";
     renderBoard();
