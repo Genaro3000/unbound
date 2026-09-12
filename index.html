@@ -1039,6 +1039,7 @@
   let armorChargeLeft = 0;
   let drillArmed = false;
   let floorStartTime = 0;
+  let isFirstClick = true;
 
   let radioactiveSelected = false;
   window.toggleRadioactiveSelect = function () {
@@ -1084,6 +1085,7 @@
     armorChargeLeft = 0;
     drillArmed = false;
     floorStartTime = Date.now();
+    isFirstClick = true;
 
     cells = generateSolvableBoard();
     roundActive = true;
@@ -1296,13 +1298,22 @@
     }
     targets.forEach((idx) => {
       if (cells[idx].revealed || cells[idx].flagged) return;
-      cells[idx].flagged = true;
       if (cells[idx].mine) {
-        roundScore += (idx === goldenMineIdx ? 10 : MINE_FLAG_POINTS);
+        cells[idx].flagged = true;
+        cells[idx].drillLocked = true;
+      } else {
+        const r = Math.floor(idx / COLS), c = idx % COLS;
+        floodFillOn(cells, r, c);
       }
     });
-    document.getElementById("roundScoreVal").textContent = roundScore;
+    updateProgressDisplay();
     renderBoard();
+
+    const remainingSafe = cells.filter((c) => !c.mine && !c.revealed).length;
+    if (remainingSafe === 0) {
+      if (radioactiveActive) advanceFloor();
+      else endRound(true);
+    }
   }
 
   window.useHazardLift = function () {
@@ -1348,6 +1359,7 @@
     const idx = row * COLS + col;
     if (!roundActive || cells[idx].revealed) return;
     if (idx === goldenMineIdx && cells[idx].flagged) return; // la bandera golden ya no se puede sacar
+    if (cells[idx].drillLocked) return; // las minas marcadas por el hand-drill quedan fijas
     cells[idx].flagged = !cells[idx].flagged;
 
     updateProgressDisplay();
@@ -1407,6 +1419,7 @@
     goldenMineIdx = null;
     armorChargeLeft = 0;
     drillArmed = false;
+    isFirstClick = true;
 
     document.getElementById("roundIntro").style.display = "none";    document.getElementById("roundArea").style.display = "block";
     document.getElementById("result").textContent = "";
@@ -1437,7 +1450,9 @@
       return;
     }
 
-     const toReveal = floodFillOn(cells, row, col);
+     const wasFirstClick = isFirstClick;
+    isFirstClick = false;
+    const toReveal = floodFillOn(cells, row, col);
     let hitMine = false;
     toReveal.forEach((i) => {
       cells[i].revealed = true;
@@ -1467,6 +1482,8 @@
         current.items.angelRevive -= 1;
         return current;
       });
+      hitMine = false;
+    } else if (hitMine && wasFirstClick) {
       hitMine = false;
     } else if (hitMine && armorChargeLeft > 0) {
       armorChargeLeft -= 1;
