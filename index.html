@@ -1483,7 +1483,7 @@
         return current;
       });
       hitMine = false;
-    } else if (hitMine && wasFirstClick) {
+    } else if (hitMine && wasFirstClick && (myItems.heavyArmor || 0) > 0) {
       hitMine = false;
     } else if (hitMine && armorChargeLeft > 0) {
       armorChargeLeft -= 1;
