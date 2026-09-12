@@ -355,24 +355,6 @@
 
       <div class="shop-page" data-page="3" style="display:none">
       <div class="shop-item">
-        <div class="shop-item-name">🪖 Heavy Armor</div>
-        <div class="shop-item-desc">Tanks two mine hits instead of one before breaking.</div>
-        <div class="shop-item-row">
-          <span id="armorOwned">Owned: 0</span>
-          <button onclick="buyItem('heavyArmor')">Buy - 300 Coins</button>
-        </div>
-      </div>
-
-      <div class="shop-item">
-        <div class="shop-item-name">⛏️ Hand-Drill</div>
-        <div class="shop-item-desc">Click a tile to auto-flag a vertical line of 5 tiles — any mines inside are marked, not detonated.</div>
-        <div class="shop-item-row">
-          <span id="drillOwned">Owned: 0</span>
-          <button onclick="buyItem('handDrill')">Buy - 150 Coins</button>
-        </div>
-      </div>
-
-      <div class="shop-item">
         <div class="shop-item-name">🎲 Hazard Lift</div>
         <div class="shop-item-desc">40% chance to skip the floor instantly, 60% chance to drop back one floor.</div>
         <div class="shop-item-row">
@@ -387,6 +369,24 @@
         <div class="shop-item-row">
           <span id="reactorOwned">Owned: 0</span>
           <button onclick="buyItem('meltdownReactor')">Buy - 100 Coins</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">⛏️ Hand-Drill</div>
+        <div class="shop-item-desc">Click a tile to auto-flag a vertical line of 5 tiles — any mines inside are marked, not detonated.</div>
+        <div class="shop-item-row">
+          <span id="drillOwned">Owned: 0</span>
+          <button onclick="buyItem('handDrill')">Buy - 150 Coins</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">🪖 Heavy Armor</div>
+        <div class="shop-item-desc">Tanks two mine hits instead of one before breaking.</div>
+        <div class="shop-item-row">
+          <span id="armorOwned">Owned: 0</span>
+          <button onclick="buyItem('heavyArmor')">Buy - 300 Coins</button>
         </div>
       </div>
       </div>
@@ -593,10 +593,12 @@
 
   // --- Modo toroidal (Expert Mode): bordes conectados + minas mas cerca de los bordes ---
   let toroidalMode = false;
+  let classicSelected = false;
   window.toggleExpertMode = function () {
-    toroidalMode = !toroidalMode;
-    document.getElementById("modeExpertBtn").classList.toggle("mode-active", toroidalMode);
-    if (toroidalMode && radioactiveSelected) {
+    classicSelected = !classicSelected;
+    toroidalMode = classicSelected;
+    document.getElementById("modeExpertBtn").classList.toggle("mode-active", classicSelected);
+    if (classicSelected && radioactiveSelected) {
       radioactiveSelected = false;
       document.getElementById("radioactiveBtn").classList.remove("mode-active");
     }
@@ -1030,7 +1032,8 @@
   window.toggleRadioactiveSelect = function () {
     radioactiveSelected = !radioactiveSelected;
     document.getElementById("radioactiveBtn").classList.toggle("mode-active", radioactiveSelected);
-    if (radioactiveSelected && toroidalMode) {
+    if (radioactiveSelected && classicSelected) {
+      classicSelected = false;
       toroidalMode = false;
       document.getElementById("modeExpertBtn").classList.remove("mode-active");
     }
@@ -1038,7 +1041,7 @@
 
   document.getElementById("playAgainBtn").addEventListener("click", function () {
     if (radioactiveSelected) startRadioactive();
-    else startRound();
+    else if (classicSelected) startRound();
   });
 
   window.startRadioactive = function () {
