@@ -274,6 +274,7 @@
         <button id="tabItemsBtn" class="shop-tab tab-active" onclick="switchShopTab('items')">Items</button>
         <button id="tabCustomizeBtn" class="shop-tab" style="display:none" onclick="switchShopTab('customize')">Customize ⚔️</button>
         <button id="tabSmelterBtn" class="shop-tab" style="display:none" onclick="switchShopTab('smelter')">Smelter 🔥</button>
+        <button id="tabFusionBtn" class="shop-tab" style="display:none" onclick="switchShopTab('fusion')">Fusion Forge 🌟</button>
       </div>
 
       <div id="shopTabItems">
@@ -373,11 +374,11 @@
       </div>
 
       <div class="shop-item">
-        <div class="shop-item-name">⛏️ Hand-Drill</div>
-        <div class="shop-item-desc">Click a tile to auto-flag a vertical line of 5 tiles — any mines inside are marked, not detonated.</div>
+        <div class="shop-item-name">🔩 Mine Bolt</div>
+        <div class="shop-item-desc">Fires a bolt that marks 1 random mine and welds the flag in place — unmarkable.</div>
         <div class="shop-item-row">
-          <span id="drillOwned">Owned: 0</span>
-          <button onclick="buyItem('handDrill')">Buy - 150 Coins</button>
+          <span id="mineBoltOwned">Owned: 0</span>
+          <button onclick="buyItem('mineBolt')">Buy - 150 Coins</button>
         </div>
       </div>
 
@@ -450,6 +451,34 @@
         </div>
       </div>
 
+      <div id="shopTabFusion" style="display:none">
+        <p class="cust-intro">Combine items and ore into something far more powerful.</p>
+
+        <div class="shop-item">
+          <div class="shop-item-name">💥 Void Executioner</div>
+          <div class="shop-item-desc">Needs: Oracle + Sonar Pulse + Mine Bolt + 🟨20 Gold + 🟦10 Platinum.<br>Effect: Welds every mine in a 5x5 blast zone into place, and flashes 5 other random mines across the board for 0.5s.</div>
+          <div class="shop-item-row"><span id="voidOwned">Owned: 0</span><button onclick="fuseItem('voidExecutioner')">Fuse</button></div>
+        </div>
+
+        <div class="shop-item">
+          <div class="shop-item-name">⚡ Supernova Stasis-Core</div>
+          <div class="shop-item-desc">Needs: Time Freeze + Adrenaline Shot + Meltdown Reactor + 🟦15 Platinum + 🟩10 Chlorophyte.<br>Effect: Buys you 10 free seconds. Clear the floor in under 90s afterward for 1.5x points AND 1.5x ore on that drop.</div>
+          <div class="shop-item-row"><span id="supernovaOwned">Owned: 0</span><button onclick="fuseItem('supernovaCore')">Fuse</button></div>
+        </div>
+
+        <div class="shop-item">
+          <div class="shop-item-name">👑 Phantom Midas-Rift</div>
+          <div class="shop-item-desc">Needs: Midas Spark + Smoke Bomb + Hazard Lift + 🟩15 Chlorophyte + 🟪5 Hallowed.<br>Effect: 35% chance to warp into a Midas Vault floor with double minerals. 65% chance to drop one floor deeper with a free 2x2 Smoke Shield waiting for you.</div>
+          <div class="shop-item-row"><span id="phantomOwned">Owned: 0</span><button onclick="fuseItem('phantomMidasRift')">Fuse</button></div>
+        </div>
+
+        <div class="shop-item">
+          <div class="shop-item-name">🔱 Titan-Forge Exosuit</div>
+          <div class="shop-item-desc">Needs: Shield + Angelic Revive + Heavy Armor + 🟩20 Chlorophyte + 🟪10 Hallowed.<br>Effect: Passive. Guarantees 1st-click immunity and tanks 3 mine hits. If a 4th hit would kill you, it auto-resurrects you with 1 Shield charge live.</div>
+          <div class="shop-item-row"><span id="titanOwned">Owned: 0</span><button onclick="fuseItem('titanForgeExosuit')">Fuse</button></div>
+        </div>
+      </div>
+
       <button id="closeShopBtn" onclick="toggleShop()">Close</button>
     </div>
   </div>
@@ -483,7 +512,11 @@
           <button id="useSmokeBtn" onclick="useSmokeBomb()">💨 Use (<span id="smokeCount">0</span>)</button>
       <span id="armorStatus">🪖 x0</span>
       <span id="reactorStatus">☢️ x0</span>
-      <button id="useDrillBtn" onclick="useHandDrill()">⛏️ Use (<span id="drillCount">0</span>)</button>
+        <button id="useMineBoltBtn" onclick="useMineBolt()">🔩 Use (<span id="mineBoltCount">0</span>)</button>
+      <button id="useVoidBtn" onclick="useVoidExecutioner()">💥 Use (<span id="voidCount">0</span>)</button>
+      <button id="useSupernovaBtn" onclick="useSupernovaCore()">⚡ Use (<span id="supernovaCount">0</span>)</button>
+      <button id="usePhantomBtn" onclick="usePhantomMidasRift()">👑 Use (<span id="phantomCount">0</span>)</button>
+      <span id="titanStatus">🔱 x0</span>
       <button id="useLiftBtn" onclick="useHazardLift()">🎲 Use (<span id="liftCount">0</span>)</button>
     </div>  
          <div id="mineralBar">
@@ -895,9 +928,11 @@
     document.getElementById("shopTabItems").style.display = tab === "items" ? "block" : "none";
     document.getElementById("shopTabCustomize").style.display = tab === "customize" ? "block" : "none";
     document.getElementById("shopTabSmelter").style.display = tab === "smelter" ? "block" : "none";
+    document.getElementById("shopTabFusion").style.display = tab === "fusion" ? "block" : "none";
     document.getElementById("tabItemsBtn").classList.toggle("tab-active", tab === "items");
     document.getElementById("tabCustomizeBtn").classList.toggle("tab-active", tab === "customize");
-    document.getElementById("tabSmelterBtn").classList.toggle("tab-active", tab === "smelter");
+        document.getElementById("tabSmelterBtn").classList.toggle("tab-active", tab === "smelter");
+    document.getElementById("tabFusionBtn").classList.toggle("tab-active", tab === "fusion");
     if (tab === "customize") {
       const current = localStorage.getItem("ms_stabset") || "stab";
       document.querySelectorAll("[data-set]").forEach((btn) => {
@@ -917,7 +952,7 @@
   };
 
   // --- Tienda ---
-  const SHOP_PRICES = { shield: 1, timeFreeze: 1, angelRevive: 1, adrenaline: 1, oracle: 1, sonar: 1, midasSpark: 1, smokeBomb: 1, heavyArmor: 1, handDrill: 1, hazardLift: 1, meltdownReactor: 1 };
+  const SHOP_PRICES = { shield: 1, timeFreeze: 1, angelRevive: 1, adrenaline: 1, oracle: 1, sonar: 1, midasSpark: 1, smokeBomb: 1, heavyArmor: 1, mineBolt: 1, hazardLift: 1, meltdownReactor: 1 };
   let myCoins = 0;
   let myItems = { shield: 0, timeFreeze: 0, multiplier: 0 };
   let timeCreditSeconds = 0;
@@ -948,12 +983,21 @@
     document.getElementById("smokeOwned").textContent = `Owned: ${myItems.smokeBomb || 0}`;
     document.getElementById("smokeCount").textContent = myItems.smokeBomb || 0;
     document.getElementById("armorOwned").textContent = `Owned: ${myItems.heavyArmor || 0}`;
-    document.getElementById("drillOwned").textContent = `Owned: ${myItems.handDrill || 0}`;
+    document.getElementById("mineBoltOwned").textContent = `Owned: ${myItems.mineBolt || 0}`;
     document.getElementById("liftOwned").textContent = `Owned: ${myItems.hazardLift || 0}`;
     document.getElementById("reactorOwned").textContent = `Owned: ${myItems.meltdownReactor || 0}`;
     document.getElementById("armorStatus").textContent = `🪖 x${myItems.heavyArmor || 0}`;
     document.getElementById("reactorStatus").textContent = `☢️ x${myItems.meltdownReactor || 0}`;
-    document.getElementById("drillCount").textContent = myItems.handDrill || 0;
+        document.getElementById("mineBoltCount").textContent = myItems.mineBolt || 0;
+    document.getElementById("voidOwned").textContent = `Owned: ${myItems.voidExecutioner || 0}`;
+    document.getElementById("voidCount").textContent = myItems.voidExecutioner || 0;
+    document.getElementById("supernovaOwned").textContent = `Owned: ${myItems.supernovaCore || 0}`;
+    document.getElementById("supernovaCount").textContent = myItems.supernovaCore || 0;
+    document.getElementById("phantomOwned").textContent = `Owned: ${myItems.phantomMidasRift || 0}`;
+    document.getElementById("phantomCount").textContent = myItems.phantomMidasRift || 0;
+    document.getElementById("titanOwned").textContent = `Owned: ${myItems.titanForgeExosuit || 0}`;
+    document.getElementById("titanStatus").textContent = `🔱 x${myItems.titanForgeExosuit || 0}`;
+    document.getElementById("tabFusionBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
     document.getElementById("liftCount").textContent = myItems.hazardLift || 0;
         document.getElementById("radioactiveBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
         document.getElementById("tabCustomizeBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
@@ -1012,6 +1056,30 @@
     });
   };
 
+  const FUSION_RECIPES = {
+    voidExecutioner:  { items: { oracle: 1, sonar: 1, mineBolt: 1 }, minerals: { gold: 20, platinum: 10 } },
+    supernovaCore:    { items: { timeFreeze: 1, adrenaline: 1, meltdownReactor: 1 }, minerals: { platinum: 15, chlorophyte: 10 } },
+    phantomMidasRift: { items: { midasSpark: 1, smokeBomb: 1, hazardLift: 1 }, minerals: { chlorophyte: 15, hallowed: 5 } },
+    titanForgeExosuit:{ items: { shield: 1, angelRevive: 1, heavyArmor: 1 }, minerals: { chlorophyte: 20, hallowed: 10 } }
+  };
+
+  window.fuseItem = function (key) {
+    const recipe = FUSION_RECIPES[key];
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current) return current;
+      const items = current.items || {};
+      const minerals = current.minerals || {};
+      for (const k in recipe.items) if ((items[k] || 0) < recipe.items[k]) return current;
+      for (const k in recipe.minerals) if ((minerals[k] || 0) < recipe.minerals[k]) return current;
+      for (const k in recipe.items) items[k] -= recipe.items[k];
+      for (const k in recipe.minerals) minerals[k] -= recipe.minerals[k];
+      current.items = items;
+      current.items[key] = (current.items[key] || 0) + 1;
+      current.minerals = minerals;
+      return current;
+    });
+  };
+
   window.useTimeFreeze = function () {
     if (!roundActive || (myItems.timeFreeze || 0) <= 0) return;
     timeCreditSeconds += 5;
@@ -1037,8 +1105,13 @@
       let toroidalBeforeRadioactive = false;
   let mySavedRun = null;
   let armorChargeLeft = 0;
-  let drillArmed = false;
-  let floorStartTime = 0;
+    let floorStartTime = 0;
+  let voidArmed = false;
+  let supernovaBonusActive = false;
+  let floorMineralMultiplier = 1;
+  let titanChargesLeft = 0;
+  let titanConsumedThisRound = false;
+  let titanRevivedThisRound = false;
   let isFirstClick = true;
 
   let radioactiveSelected = false;
@@ -1082,8 +1155,13 @@
     smokeArmed = false;
     midasUsedThisRound = false;
     goldenMineIdx = null;
-    armorChargeLeft = 0;
-    drillArmed = false;
+         armorChargeLeft = 0;
+    voidArmed = false;
+    supernovaBonusActive = false;
+    floorMineralMultiplier = 1;
+    titanChargesLeft = 0;
+    titanConsumedThisRound = false;
+    titanRevivedThisRound = false;
     floorStartTime = Date.now();
     isFirstClick = true;
 
@@ -1117,6 +1195,18 @@
       });
     }
 
+    const clearedUnder90 = (Date.now() - floorStartTime) < 90000;
+    if (supernovaBonusActive) {
+      if (clearedUnder90) {
+        roundScore = Math.round(roundScore * 1.5);
+        dropAmount = Math.round(dropAmount * 1.5);
+      }
+      supernovaBonusActive = false;
+    }
+
+    dropAmount = Math.round(dropAmount * floorMineralMultiplier);
+    floorMineralMultiplier = 1;
+
     const droppedTier = rollMineralTier(currentFloor);
     myMinerals[droppedTier] = (myMinerals[droppedTier] || 0) + dropAmount;
     renderMineralBar();
@@ -1134,7 +1224,6 @@
     goldenMineIdx = null;
     midasUsedThisRound = false;
     sonarArmed = false;
-    drillArmed = false;
 
     cells = generateSolvableBoard();
     document.getElementById("radioactiveFloor").textContent = currentFloor;
@@ -1278,43 +1367,102 @@
     renderBoard();
   }
 
-  window.useHandDrill = function () {
-    if (!roundActive || (myItems.handDrill || 0) <= 0 || drillArmed) return;
-    drillArmed = true;
+  window.useVoidExecutioner = function () {
+    if (!roundActive || (myItems.voidExecutioner || 0) <= 0 || voidArmed) return;
+    voidArmed = true;
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.handDrill) return current;
-      current.items.handDrill -= 1;
+      if (!current || !current.items || !current.items.voidExecutioner) return current;
+      current.items.voidExecutioner -= 1;
       return current;
     });
   };
 
-  function applyHandDrill(row, col) {
-    const targets = [];
+  function applyVoidExecutioner(row, col) {
+    const zone = [];
     for (let dr = -2; dr <= 2; dr++) {
-      let rr = row + dr;
-      if (toroidalMode) rr = ((rr % ROWS) + ROWS) % ROWS;
-      else if (rr < 0 || rr >= ROWS) continue;
-      targets.push(rr * COLS + col);
+      for (let dc = -2; dc <= 2; dc++) {
+        let rr = row + dr, cc = col + dc;
+        if (toroidalMode) {
+          rr = ((rr % ROWS) + ROWS) % ROWS;
+          cc = ((cc % COLS) + COLS) % COLS;
+        } else if (rr < 0 || rr >= ROWS || cc < 0 || cc >= COLS) {
+          continue;
+        }
+        zone.push(rr * COLS + cc);
+      }
     }
-    targets.forEach((idx) => {
-      if (cells[idx].revealed || cells[idx].flagged) return;
-      if (cells[idx].mine) {
+    zone.forEach((idx) => {
+      if (cells[idx].mine && !cells[idx].revealed && !cells[idx].flagged) {
         cells[idx].flagged = true;
         cells[idx].drillLocked = true;
-      } else {
-        const r = Math.floor(idx / COLS), c = idx % COLS;
-        floodFillOn(cells, r, c);
       }
     });
     updateProgressDisplay();
     renderBoard();
 
-    const remainingSafe = cells.filter((c) => !c.mine && !c.revealed).length;
-    if (remainingSafe === 0) {
-      if (radioactiveActive) advanceFloor();
-      else endRound(true);
+    const otherMines = cells
+      .map((c, i) => (c.mine && !c.revealed && !c.flagged && !zone.includes(i) ? i : null))
+      .filter((i) => i !== null);
+    const shown = [];
+    while (shown.length < 5 && otherMines.length > 0) {
+      const pick = Math.floor(Math.random() * otherMines.length);
+      shown.push(otherMines.splice(pick, 1)[0]);
     }
+    const board = document.getElementById("board");
+    const flashedButtons = shown.map((idx) => board.children[idx]);
+    flashedButtons.forEach((btn) => { if (btn) btn.classList.add("xray-flash"); });
+    setTimeout(() => {
+      flashedButtons.forEach((btn) => { if (btn) btn.classList.remove("xray-flash"); });
+    }, 500);
   }
+
+  window.useSupernovaCore = function () {
+    if (!roundActive || !radioactiveActive || (myItems.supernovaCore || 0) <= 0) return;
+    floorStartTime += 10000;
+    supernovaBonusActive = true;
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.supernovaCore) return current;
+      current.items.supernovaCore -= 1;
+      return current;
+    });
+  };
+
+  window.usePhantomMidasRift = function () {
+    if (!roundActive || !radioactiveActive || (myItems.phantomMidasRift || 0) <= 0) return;
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.phantomMidasRift) return current;
+      current.items.phantomMidasRift -= 1;
+      return current;
+    });
+
+    if (Math.random() < 0.35) {
+      floorMineralMultiplier = 2;
+      advanceFloor();
+    } else {
+      advanceFloor();
+      applySmokeBomb(Math.floor(ROWS / 2), Math.floor(COLS / 2));
+    }
+  };
+
+  window.useMineBolt = function () {
+    if (!roundActive || (myItems.mineBolt || 0) <= 0) return;
+    const hiddenMines = cells
+      .map((c, i) => (c.mine && !c.revealed && !c.flagged ? i : null))
+      .filter((i) => i !== null);
+    if (hiddenMines.length === 0) return;
+
+    const idx = hiddenMines[Math.floor(Math.random() * hiddenMines.length)];
+    cells[idx].flagged = true;
+    cells[idx].drillLocked = true;
+    updateProgressDisplay();
+    renderBoard();
+
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.mineBolt) return current;
+      current.items.mineBolt -= 1;
+      return current;
+    });
+  };
 
   window.useHazardLift = function () {
     if (!roundActive || !radioactiveActive || (myItems.hazardLift || 0) <= 0) return;
@@ -1333,7 +1481,6 @@
       goldenMineIdx = null;
       midasUsedThisRound = false;
       sonarArmed = false;
-      drillArmed = false;
       cells = generateSolvableBoard();
       document.getElementById("radioactiveFloor").textContent = currentFloor;
       renderBoard();
@@ -1418,7 +1565,12 @@
     midasUsedThisRound = false;
     goldenMineIdx = null;
     armorChargeLeft = 0;
-    drillArmed = false;
+    voidArmed = false;
+    supernovaBonusActive = false;
+    floorMineralMultiplier = 1;
+    titanChargesLeft = 0;
+    titanConsumedThisRound = false;
+    titanRevivedThisRound = false;
     isFirstClick = true;
 
     document.getElementById("roundIntro").style.display = "none";    document.getElementById("roundArea").style.display = "block";
@@ -1444,11 +1596,13 @@
       return;
     }
 
-    if (drillArmed) {
-      drillArmed = false;
-      applyHandDrill(row, col);
+    if (voidArmed) {
+      voidArmed = false;
+      applyVoidExecutioner(row, col);
       return;
     }
+
+
 
      const wasFirstClick = isFirstClick;
     isFirstClick = false;
@@ -1483,7 +1637,7 @@
         return current;
       });
       hitMine = false;
-    } else if (hitMine && wasFirstClick && (myItems.heavyArmor || 0) > 0) {
+    } else if (hitMine && wasFirstClick && ((myItems.heavyArmor || 0) > 0 || (myItems.titanForgeExosuit || 0) > 0)) {
       hitMine = false;
     } else if (hitMine && armorChargeLeft > 0) {
       armorChargeLeft -= 1;
@@ -1497,8 +1651,30 @@
         return current;
       });
       hitMine = false;
+    } else if (hitMine && titanChargesLeft > 0) {
+      titanChargesLeft -= 1;
+      hitMine = false;
+    } else if (hitMine && !titanConsumedThisRound && (myItems.titanForgeExosuit || 0) > 0) {
+      myItems.titanForgeExosuit -= 1;
+      titanConsumedThisRound = true;
+      titanChargesLeft = 2;
+      runTransaction(ref(db, "players/current/" + playerId), (current) => {
+        if (!current || !current.items || !current.items.titanForgeExosuit) return current;
+        current.items.titanForgeExosuit -= 1;
+        return current;
+      });
+      hitMine = false;
+    } else if (hitMine && titanConsumedThisRound && !titanRevivedThisRound) {
+      titanRevivedThisRound = true;
+      myItems.shield = (myItems.shield || 0) + 1;
+      runTransaction(ref(db, "players/current/" + playerId), (current) => {
+        if (!current) return current;
+        current.items = current.items || {};
+        current.items.shield = (current.items.shield || 0) + 1;
+        return current;
+      });
+      hitMine = false;
     }
-
     renderBoard();
 
     if (hitMine) {
