@@ -283,7 +283,7 @@
         <div class="shop-item-desc">Can be used once per round. Blocks one mine hit.</div>
         <div class="shop-item-row">
           <span id="shieldOwned">Owned: 0</span>
-          <button onclick="buyItem('shield')">Buy - 500 Coins</button>
+          <button onclick="buyItem('shield')">Buy - 100 Coins</button>
         </div>
       </div>
 
@@ -292,7 +292,7 @@
         <div class="shop-item-desc">Shaves 5 seconds off your round time.</div>
         <div class="shop-item-row">
           <span id="timeFreezeOwned">Owned: 0</span>
-          <button onclick="buyItem('timeFreeze')">Buy - 750 Coins</button>
+          <button onclick="buyItem('timeFreeze')">Buy - 25 Coins</button>
         </div>
       </div>
 
@@ -301,7 +301,7 @@
         <div class="shop-item-desc">Click a tile to clear all mines from its 2x2 area, making it guaranteed safe.</div>
         <div class="shop-item-row">
           <span id="smokeOwned">Owned: 0</span>
-          <button onclick="buyItem('smokeBomb')">Buy - 1 Coin</button>
+          <button onclick="buyItem('smokeBomb')">Buy - 125 Coins</button>
         </div>
       </div>
 
@@ -310,7 +310,7 @@
         <div class="shop-item-desc">Saves you from a fatal mine hit — adds a +5s penalty to your time.</div>
         <div class="shop-item-row">
           <span id="angelOwned">Owned: 0</span>
-          <button onclick="buyItem('angelRevive')">Buy - 1 Coin</button>
+          <button onclick="buyItem('angelRevive')">Buy - 250 Coins</button>
         </div>
       </div>
       </div>
@@ -321,7 +321,7 @@
         <div class="shop-item-desc">Clear the board in under 60s for a 1.5x score bonus.</div>
         <div class="shop-item-row">
           <span id="adrenalineOwned">Owned: 0</span>
-          <button onclick="buyItem('adrenaline')">Buy - 1 Coin</button>
+          <button onclick="buyItem('adrenaline')">Buy - 75 Coins</button>
         </div>
       </div>
 
@@ -330,7 +330,7 @@
         <div class="shop-item-desc">Reveals a random safe tile in green for the rest of the round.</div>
         <div class="shop-item-row">
           <span id="oracleOwned">Owned: 0</span>
-          <button onclick="buyItem('oracle')">Buy - 1 Coin</button>
+          <button onclick="buyItem('oracle')">Buy - 25 Coins</button>
         </div>
       </div>
 
@@ -340,7 +340,7 @@
         <div class="shop-item-desc">Scan a tile to flash its 3x3 area — green for safe, red for mines.</div>
         <div class="shop-item-row">
           <span id="sonarOwned">Owned: 0</span>
-          <button onclick="buyItem('sonar')">Buy - 1 Coin</button>
+          <button onclick="buyItem('sonar')">Buy - 100 Coins</button>
         </div>
       </div>
 
@@ -349,7 +349,7 @@
         <div class="shop-item-desc">Turns one random mine golden. Flag it for 10 points instead of 2 — but that flag can't be removed.</div>
         <div class="shop-item-row">
           <span id="midasOwned">Owned: 0</span>
-          <button onclick="buyItem('midasSpark')">Buy - 1 Coin</button>
+          <button onclick="buyItem('midasSpark')">Buy - 50 Coins</button>
         </div>
       </div>
       </div>
@@ -360,7 +360,7 @@
         <div class="shop-item-desc">Tanks two mine hits instead of one before breaking.</div>
         <div class="shop-item-row">
           <span id="armorOwned">Owned: 0</span>
-          <button onclick="buyItem('heavyArmor')">Buy - 1 Coin</button>
+          <button onclick="buyItem('heavyArmor')">Buy - 300 Coins</button>
         </div>
       </div>
 
@@ -369,7 +369,7 @@
         <div class="shop-item-desc">Click a tile to auto-flag a vertical line of 5 tiles — any mines inside are marked, not detonated.</div>
         <div class="shop-item-row">
           <span id="drillOwned">Owned: 0</span>
-          <button onclick="buyItem('handDrill')">Buy - 1 Coin</button>
+          <button onclick="buyItem('handDrill')">Buy - 150 Coins</button>
         </div>
       </div>
 
@@ -378,7 +378,7 @@
         <div class="shop-item-desc">40% chance to skip the floor instantly, 60% chance to drop back one floor.</div>
         <div class="shop-item-row">
           <span id="liftOwned">Owned: 0</span>
-          <button onclick="buyItem('hazardLift')">Buy - 1 Coin</button>
+          <button onclick="buyItem('hazardLift')">Buy - 50 Coins</button>
         </div>
       </div>
 
@@ -387,7 +387,7 @@
         <div class="shop-item-desc">Clear a floor in under 60s for 1.5x minerals from that drop.</div>
         <div class="shop-item-row">
           <span id="reactorOwned">Owned: 0</span>
-          <button onclick="buyItem('meltdownReactor')">Buy - 1 Coin</button>
+          <button onclick="buyItem('meltdownReactor')">Buy - 100 Coins</button>
         </div>
       </div>
       </div>
@@ -459,10 +459,10 @@
     <p id="roundIntroText"><span>⚠️ Border Alert: Left connects to right, top connects to bottom.</span></p>
     <div id="modeSelect">
       <button id="shopBtn" class="mode-btn" onclick="toggleShop()">Shop 🛒</button>
-      <button id="modeExpertBtn" class="mode-btn" onclick="toggleExpertMode()">Expert Mode ☠️</button>
-      <button id="radioactiveBtn" class="mode-btn" style="display:none" onclick="startRadioactive()">☢️ Rad-Mines</button>
+      <button id="modeExpertBtn" class="mode-btn" onclick="toggleExpertMode()">Classic Mode 💣</button>
+      <button id="radioactiveBtn" class="mode-btn" style="display:none" onclick="toggleRadioactiveSelect()">☢️ Rad-Mines</button>
     </div>
-    <button id="playAgainBtn" onclick="startRound()">START ROUND</button>
+    <button id="playAgainBtn">START ROUND</button>
   </div>
 
   <div id="roundArea" style="display:none">
@@ -840,8 +840,8 @@
   }
 
   let flagMode = false;
-  const MINE_FLAG_POINTS = 2; // puntos por cada mina marcada correctamente
-    const CLEAR_BOARD_BONUS = 56; // puntos por completar el tablero entero
+  const MINE_FLAG_POINTS = 0; // ya no se dan puntos por marcar minas
+    const CLEAR_BOARD_BONUS = 100; // puntos fijos por completar el tablero entero
     const RADIOACTIVE_UNLOCK_SCORE = 1; // 👈 puntaje total necesario para desbloquear el modo
 
   const STAB_SETS = {
@@ -1023,6 +1023,17 @@
   let drillArmed = false;
   let floorStartTime = 0;
 
+  let radioactiveSelected = false;
+  window.toggleRadioactiveSelect = function () {
+    radioactiveSelected = !radioactiveSelected;
+    document.getElementById("radioactiveBtn").classList.toggle("mode-active", radioactiveSelected);
+  };
+
+  document.getElementById("playAgainBtn").addEventListener("click", function () {
+    if (radioactiveSelected) startRadioactive();
+    else startRound();
+  });
+
   window.startRadioactive = function () {
     toroidalBeforeRadioactive = toroidalMode;
     toroidalMode = true;
@@ -1068,9 +1079,6 @@
   };
 
   function advanceFloor() {
-    cells.forEach((c, i) => {
-      if (c.mine && !c.flagged) roundScore += (i === goldenMineIdx ? 10 : MINE_FLAG_POINTS);
-    });
     roundScore += CLEAR_BOARD_BONUS;
 
     const clearedFast = (Date.now() - floorStartTime) < 60000;
@@ -1134,6 +1142,8 @@
     document.getElementById("roundIntroText").querySelector("span").textContent = "Ready for another round?";
     document.getElementById("roundIntro").style.display = "block";
     document.getElementById("roundArea").style.display = "none";
+    radioactiveSelected = false;
+    document.getElementById("radioactiveBtn").classList.remove("mode-active");
   }
 
   window.useMidasSpark = function () {
@@ -1318,14 +1328,7 @@
     if (idx === goldenMineIdx && cells[idx].flagged) return; // la bandera golden ya no se puede sacar
     cells[idx].flagged = !cells[idx].flagged;
 
-    if (cells[idx].mine) {
-      if (idx === goldenMineIdx) {
-        roundScore += 10;
-      } else {
-        roundScore += cells[idx].flagged ? MINE_FLAG_POINTS : -MINE_FLAG_POINTS;
-      }
-      document.getElementById("roundScoreVal").textContent = roundScore;
-    }
+    // marcar minas ya no otorga puntos directamente
     renderBoard();
   }
 
@@ -1473,11 +1476,6 @@
 
   function endRound(won) {
     roundActive = false;
-    if (won) {
-      cells.forEach((c, i) => {
-        if (c.mine && !c.flagged) roundScore += (i === goldenMineIdx ? 10 : MINE_FLAG_POINTS);
-      });
-    }
     let finalScore = won ? roundScore + CLEAR_BOARD_BONUS : roundScore;
     let timeAdjust = -timeCreditSeconds + timePenaltySeconds;
     const elapsedSeconds = Math.max(0, Math.floor((Date.now() - roundStartTime) / 1000) + timeAdjust);
