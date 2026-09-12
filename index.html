@@ -279,11 +279,11 @@
       <div id="shopTabItems">
       <div class="shop-page" data-page="1">
       <div class="shop-item">
-        <div class="shop-item-name">🛡️ Shield</div>
-        <div class="shop-item-desc">Can be used once per round. Blocks one mine hit.</div>
+        <div class="shop-item-name">🔮 Oracle</div>
+        <div class="shop-item-desc">Reveals a random safe tile in green for the rest of the round.</div>
         <div class="shop-item-row">
-          <span id="shieldOwned">Owned: 0</span>
-          <button onclick="buyItem('shield')">Buy - 100 Coins</button>
+          <span id="oracleOwned">Owned: 0</span>
+          <button onclick="buyItem('oracle')">Buy - 25 Coins</button>
         </div>
       </div>
 
@@ -297,25 +297,14 @@
       </div>
 
       <div class="shop-item">
-        <div class="shop-item-name">💨 Smoke Bomb</div>
-        <div class="shop-item-desc">Click a tile to clear all mines from its 2x2 area, making it guaranteed safe.</div>
+        <div class="shop-item-name">✨ Midas Spark</div>
+        <div class="shop-item-desc">Turns one random mine golden. Flag it for 10 points instead of 2 — but that flag can't be removed.</div>
         <div class="shop-item-row">
-          <span id="smokeOwned">Owned: 0</span>
-          <button onclick="buyItem('smokeBomb')">Buy - 125 Coins</button>
+          <span id="midasOwned">Owned: 0</span>
+          <button onclick="buyItem('midasSpark')">Buy - 50 Coins</button>
         </div>
       </div>
 
-      <div class="shop-item">
-        <div class="shop-item-name">🪽 Angel Revive</div>
-        <div class="shop-item-desc">Saves you from a fatal mine hit — adds a +5s penalty to your time.</div>
-        <div class="shop-item-row">
-          <span id="angelOwned">Owned: 0</span>
-          <button onclick="buyItem('angelRevive')">Buy - 250 Coins</button>
-        </div>
-      </div>
-      </div>
-
-      <div class="shop-page" data-page="2" style="display:none">
       <div class="shop-item">
         <div class="shop-item-name">💉️ Adrenaline Shot</div>
         <div class="shop-item-desc">Clear the board in under 60s for a 1.5x score bonus.</div>
@@ -324,17 +313,9 @@
           <button onclick="buyItem('adrenaline')">Buy - 75 Coins</button>
         </div>
       </div>
-
-      <div class="shop-item">
-        <div class="shop-item-name">🔮 Oracle</div>
-        <div class="shop-item-desc">Reveals a random safe tile in green for the rest of the round.</div>
-        <div class="shop-item-row">
-          <span id="oracleOwned">Owned: 0</span>
-          <button onclick="buyItem('oracle')">Buy - 25 Coins</button>
-        </div>
       </div>
 
-
+      <div class="shop-page" data-page="2" style="display:none">
       <div class="shop-item">
         <div class="shop-item-name">🎯 Sonar Pulse</div>
         <div class="shop-item-desc">Scan a tile to flash its 3x3 area — green for safe, red for mines.</div>
@@ -345,11 +326,29 @@
       </div>
 
       <div class="shop-item">
-        <div class="shop-item-name">✨ Midas Spark</div>
-        <div class="shop-item-desc">Turns one random mine golden. Flag it for 10 points instead of 2 — but that flag can't be removed.</div>
+        <div class="shop-item-name">💨 Smoke Bomb</div>
+        <div class="shop-item-desc">Click a tile to clear all mines from its 2x2 area, making it guaranteed safe.</div>
         <div class="shop-item-row">
-          <span id="midasOwned">Owned: 0</span>
-          <button onclick="buyItem('midasSpark')">Buy - 50 Coins</button>
+          <span id="smokeOwned">Owned: 0</span>
+          <button onclick="buyItem('smokeBomb')">Buy - 125 Coins</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">🛡️ Shield</div>
+        <div class="shop-item-desc">Can be used once per round. Blocks one mine hit.</div>
+        <div class="shop-item-row">
+          <span id="shieldOwned">Owned: 0</span>
+          <button onclick="buyItem('shield')">Buy - 100 Coins</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">🪽 Angel Revive</div>
+        <div class="shop-item-desc">Saves you from a fatal mine hit — adds a +5s penalty to your time.</div>
+        <div class="shop-item-row">
+          <span id="angelOwned">Owned: 0</span>
+          <button onclick="buyItem('angelRevive')">Buy - 250 Coins</button>
         </div>
       </div>
       </div>
@@ -597,6 +596,10 @@
   window.toggleExpertMode = function () {
     toroidalMode = !toroidalMode;
     document.getElementById("modeExpertBtn").classList.toggle("mode-active", toroidalMode);
+    if (toroidalMode && radioactiveSelected) {
+      radioactiveSelected = false;
+      document.getElementById("radioactiveBtn").classList.remove("mode-active");
+    }
   };
 
   function getNeighbors(r, c) {
@@ -1027,6 +1030,10 @@
   window.toggleRadioactiveSelect = function () {
     radioactiveSelected = !radioactiveSelected;
     document.getElementById("radioactiveBtn").classList.toggle("mode-active", radioactiveSelected);
+    if (radioactiveSelected && toroidalMode) {
+      toroidalMode = false;
+      document.getElementById("modeExpertBtn").classList.remove("mode-active");
+    }
   };
 
   document.getElementById("playAgainBtn").addEventListener("click", function () {
