@@ -466,7 +466,7 @@
 
   <div id="roundArea" style="display:none">
         <div id="radioactiveFloorRow" style="display:none">Floor: <span id="radioactiveFloor">1</span></div>
-    <div id="personalScore">Your score this round: <span id="roundScoreVal">0</span></div>
+    <div id="personalScore">💣 Mines Left: <span id="minesLeftVal">22</span>/<span id="minesTotalVal">22</span> • 📊 Progress: <span id="progressVal">0</span>%</div>
     <div id="roundControls">
       <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
       <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
@@ -703,6 +703,18 @@
     const m = Math.floor(totalSeconds / 60);
     const s = totalSeconds % 60;
     return `${m}:${String(s).padStart(2, "0")}`;
+  }
+
+  function updateProgressDisplay() {
+    const totalSafe = ROWS * COLS - MINES;
+    const revealedSafe = cells.filter((c) => !c.mine && c.revealed).length;
+    const flaggedMines = cells.filter((c) => c.mine && c.flagged).length;
+    const minesLeft = MINES - flaggedMines;
+    const progress = totalSafe > 0 ? Math.round((revealedSafe / totalSafe) * 100) : 0;
+
+    document.getElementById("minesLeftVal").textContent = minesLeft;
+    document.getElementById("minesTotalVal").textContent = MINES;
+    document.getElementById("progressVal").textContent = progress;
   }
 
   function buildRawBoard() {
@@ -1084,7 +1096,7 @@
     const startSet = getStabSet();
     document.getElementById("flagModeBtn").textContent = `${startSet.digEmoji} Switch to ${startSet.digLabel}`;
     document.getElementById("result").textContent = "";
-    document.getElementById("roundScoreVal").textContent = "0";
+    updateProgressDisplay();
     renderBoard();
   };
 
@@ -1124,7 +1136,7 @@
 
     cells = generateSolvableBoard();
     document.getElementById("radioactiveFloor").textContent = currentFloor;
-    document.getElementById("roundScoreVal").textContent = roundScore;
+    updateProgressDisplay();
     renderBoard();
   }
 
@@ -1338,7 +1350,7 @@
     if (idx === goldenMineIdx && cells[idx].flagged) return; // la bandera golden ya no se puede sacar
     cells[idx].flagged = !cells[idx].flagged;
 
-    // marcar minas ya no otorga puntos directamente
+    updateProgressDisplay();
     renderBoard();
   }
 
@@ -1398,7 +1410,7 @@
 
     document.getElementById("roundIntro").style.display = "none";    document.getElementById("roundArea").style.display = "block";
     document.getElementById("result").textContent = "";
-    document.getElementById("roundScoreVal").textContent = "0";
+    updateProgressDisplay();
     renderBoard();
   };
 
@@ -1437,7 +1449,7 @@
       }
     });
 
-    document.getElementById("roundScoreVal").textContent = roundScore;
+    updateProgressDisplay();
 
     if (hitMine && (myItems.shield || 0) > 0) {
       myItems.shield -= 1;
