@@ -565,10 +565,11 @@
   };
 
   function mineralOddsForFloor(floor) {
-    if (floor <= 10) return { copper: 0.75, silver: 0.25 };
-    if (floor <= 20) return { silver: 0.50, gold: 0.35, platinum: 0.15 };
-    if (floor <= 39) return { gold: 0.20, platinum: 0.45, chlorophyte: 0.30, hallowed: 0.05 };
-    return { platinum: 0.20, chlorophyte: 0.50, hallowed: 0.30 };
+    if (floor <= 5) return { copper: 0.75, silver: 0.25 };
+    if (floor <= 10) return { silver: 0.50, gold: 0.35, platinum: 0.10, copper: 0.05 };
+    if (floor <= 15) return { platinum: 0.40, chlorophyte: 0.30, gold: 0.20, hallowed: 0.05, silver: 0.05 };
+    if (floor <= 20) return { chlorophyte: 0.45, hallowed: 0.30, platinum: 0.20, gold: 0.05 };
+    return { chlorophyte: 0.40, hallowed: 0.60 };
   }
 
   function rollMineralTier(floor) {
