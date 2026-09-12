@@ -221,7 +221,20 @@
   .cell.oracle-highlight { background: #22c55e !important; }
   .cell.sonar-safe { background: #22c55e !important; }
     .cell.sonar-mine { background: #ef4444 !important; color: #ffffff; }
-  .cell.smoke-safe { background: #ffffff !important; }
+    .cell.smoke-safe { background: #ffffff !important; }
+  #exitConfirmModal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center; z-index: 60; padding: 16px;
+  }
+  #exitConfirmBox {
+    background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px;
+    padding: 22px; width: 100%; max-width: 320px; text-align: center;
+  }
+  #exitConfirmBox p { color: var(--text); font-size: 14px; margin-bottom: 16px; }
+  #exitConfirmBox button {
+    display: block; width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px;
+    border: none; background: #ffffff; color: #000000; font-weight: 700; cursor: pointer;
+  }
 
   #result { font-family: var(--font-display); font-size: clamp(18px, 4vw, 24px); font-weight: 800; color: #38BDF8; margin-top: 16px; text-align: center; }
 
@@ -353,7 +366,7 @@
 
       <div class="shop-item">
         <div class="shop-item-name">⛏️ Hand-Drill</div>
-        <div class="shop-item-desc">Click a tile to clear a 1x5 zone, making it guaranteed safe.</div>
+        <div class="shop-item-desc">Click a tile to auto-flag a vertical line of 5 tiles — any mines inside are marked, not detonated.</div>
         <div class="shop-item-row">
           <span id="drillOwned">Owned: 0</span>
           <button onclick="buyItem('handDrill')">Buy - 1 Coin</button>
@@ -485,7 +498,15 @@
     <div id="boardWrap"><div id="board"></div></div>
   </div>
 
-  <div id="result"></div>
+      <div id="exitConfirmModal" style="display:none">
+      <div id="exitConfirmBox">
+        <p>Save your progress on this run, or cancel and keep playing?</p>
+        <button onclick="confirmSaveExit()">💾 Save & Exit</button>
+        <button onclick="closeExitConfirm()">↩️ Cancel</button>
+      </div>
+    </div>
+
+    <div id="result"></div>
 </div>
 
 <script type="module">
@@ -921,7 +942,9 @@ Reemplazar:
         document.getElementById("radioactiveBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
         document.getElementById("tabCustomizeBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
     document.getElementById("tabSmelterBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
-    radioactiveUnlocked = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE;
+        radioactiveUnlocked = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE;
+    mySavedRun = me.savedRun || null;
+    document.getElementById("radioactiveBtn").textContent = mySavedRun ? `▶️ Resume Run (Floor ${mySavedRun.floor})` : "☢️ Rad-Mines";
   });
 
   let shopOpen = false;
@@ -995,7 +1018,8 @@ Reemplazar:
   let goldenMineIdx = null;
   let radioactiveActive = false;
   let currentFloor = 1;
-  let toroidalBeforeRadioactive = false;
+      let toroidalBeforeRadioactive = false;
+  let mySavedRun = null;
   let armorChargeLeft = 0;
   let drillArmed = false;
   let floorStartTime = 0;
@@ -1004,8 +1028,20 @@ Reemplazar:
     toroidalBeforeRadioactive = toroidalMode;
     toroidalMode = true;
     radioactiveActive = true;
-    currentFloor = 1;
-    roundScore = 0;
+
+    if (mySavedRun) {
+      currentFloor = mySavedRun.floor;
+      roundScore = mySavedRun.score;
+      runTransaction(ref(db, "players/current/" + playerId), (current) => {
+        if (!current) return current;
+        current.savedRun = null;
+        return current;
+      });
+      mySavedRun = null;
+    } else {
+      currentFloor = 1;
+      roundScore = 0;
+    }
     timeCreditSeconds = 0;
     timePenaltySeconds = 0;
     oracleHighlightIdx = null;
@@ -1023,16 +1059,16 @@ Reemplazar:
     document.getElementById("roundIntro").style.display = "none";
     document.getElementById("roundArea").style.display = "block";
     document.getElementById("radioactiveFloorRow").style.display = "block";
-    document.getElementById("radioactiveFloor").textContent = "1";
+    document.getElementById("radioactiveFloor").textContent = currentFloor;
     flagMode = false;
     const startSet = getStabSet();
     document.getElementById("flagModeBtn").textContent = `${startSet.digEmoji} Switch to ${startSet.digLabel}`;
     document.getElementById("result").textContent = "";
-    document.getElementById("roundScoreVal").textContent = "0";
+    document.getElementById("roundScoreVal").textContent = roundScore;
     renderBoard();
   };
 
-  function advanceFloor() {
+  function advanceFloor() 
     cells.forEach((c, i) => {
       if (c.mine && !c.flagged) roundScore += (i === goldenMineIdx ? 10 : MINE_FLAG_POINTS);
     });
@@ -1221,17 +1257,20 @@ Reemplazar:
 
   function applyHandDrill(row, col) {
     const targets = [];
-    for (let dc = -2; dc <= 2; dc++) {
-      let cc = col + dc;
-      if (toroidalMode) cc = ((cc % COLS) + COLS) % COLS;
-      else if (cc < 0 || cc >= COLS) continue;
-      targets.push(row * COLS + cc);
+    for (let dr = -2; dr <= 2; dr++) {
+      let rr = row + dr;
+      if (toroidalMode) rr = ((rr % ROWS) + ROWS) % ROWS;
+      else if (rr < 0 || rr >= ROWS) continue;
+      targets.push(rr * COLS + col);
     }
     targets.forEach((idx) => {
-      cells[idx].mine = false;
-      cells[idx].smokeSafe = true;
+      if (cells[idx].revealed || cells[idx].flagged) return;
+      cells[idx].flagged = true;
+      if (cells[idx].mine) {
+        roundScore += (idx === goldenMineIdx ? 10 : MINE_FLAG_POINTS);
+      }
     });
-    recomputeAdjacents();
+    document.getElementById("roundScoreVal").textContent = roundScore;
     renderBoard();
   }
 
@@ -1297,16 +1336,35 @@ Reemplazar:
   };
 
   window.exitRound = function () {
-    roundActive = false;
-    document.getElementById("roundIntroText").querySelector("span").textContent = radioactiveActive
-      ? "Ready for another round?"
-      : "Ready for another round?";
     if (radioactiveActive) {
-      radioactiveActive = false;
-      toroidalMode = toroidalBeforeRadioactive;
-      document.getElementById("modeExpertBtn").classList.toggle("mode-active", toroidalMode);
-      document.getElementById("radioactiveFloorRow").style.display = "none";
+      document.getElementById("exitConfirmModal").style.display = "flex";
+      return;
     }
+    roundActive = false;
+    document.getElementById("roundIntroText").querySelector("span").textContent = "Ready for another round?";
+    document.getElementById("roundIntro").style.display = "block";
+    document.getElementById("roundArea").style.display = "none";
+  };
+
+  window.closeExitConfirm = function () {
+    document.getElementById("exitConfirmModal").style.display = "none";
+  };
+
+  window.confirmSaveExit = function () {
+    document.getElementById("exitConfirmModal").style.display = "none";
+    roundActive = false;
+
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current) return current;
+      current.savedRun = { floor: currentFloor, score: roundScore };
+      return current;
+    });
+
+    radioactiveActive = false;
+    toroidalMode = toroidalBeforeRadioactive;
+    document.getElementById("modeExpertBtn").classList.toggle("mode-active", toroidalMode);
+    document.getElementById("radioactiveFloorRow").style.display = "none";
+    document.getElementById("roundIntroText").querySelector("span").textContent = "Ready for another round?";
     document.getElementById("roundIntro").style.display = "block";
     document.getElementById("roundArea").style.display = "none";
   };
