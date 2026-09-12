@@ -260,6 +260,7 @@
       <div id="shopTabs">
         <button id="tabItemsBtn" class="shop-tab tab-active" onclick="switchShopTab('items')">Items</button>
         <button id="tabCustomizeBtn" class="shop-tab" style="display:none" onclick="switchShopTab('customize')">Customize ⚔️</button>
+        <button id="tabSmelterBtn" class="shop-tab" style="display:none" onclick="switchShopTab('smelter')">Smelter 🔥</button>
       </div>
 
       <div id="shopTabItems">
@@ -340,6 +341,44 @@
       </div>
       </div>
 
+      <div class="shop-page" data-page="3" style="display:none">
+      <div class="shop-item">
+        <div class="shop-item-name">🪖 Heavy Armor</div>
+        <div class="shop-item-desc">Tanks two mine hits instead of one before breaking.</div>
+        <div class="shop-item-row">
+          <span id="armorOwned">Owned: 0</span>
+          <button onclick="buyItem('heavyArmor')">Buy - 1 Coin</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">⛏️ Hand-Drill</div>
+        <div class="shop-item-desc">Click a tile to clear a 1x5 zone, making it guaranteed safe.</div>
+        <div class="shop-item-row">
+          <span id="drillOwned">Owned: 0</span>
+          <button onclick="buyItem('handDrill')">Buy - 1 Coin</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">🎲 Hazard Lift</div>
+        <div class="shop-item-desc">40% chance to skip the floor instantly, 60% chance to drop back one floor.</div>
+        <div class="shop-item-row">
+          <span id="liftOwned">Owned: 0</span>
+          <button onclick="buyItem('hazardLift')">Buy - 1 Coin</button>
+        </div>
+      </div>
+
+      <div class="shop-item">
+        <div class="shop-item-name">☢️ Meltdown Reactor</div>
+        <div class="shop-item-desc">Clear a floor in under 60s for 1.5x minerals from that drop.</div>
+        <div class="shop-item-row">
+          <span id="reactorOwned">Owned: 0</span>
+          <button onclick="buyItem('meltdownReactor')">Buy - 1 Coin</button>
+        </div>
+      </div>
+      </div>
+
       <div id="shopNav">
         <button onclick="shopPage(-1)">◀ Prev</button>
         <span id="shopPageLabel">Page 1 / 2</span>
@@ -375,6 +414,30 @@
         <button id="resetStabBtn" data-set="stab" onclick="selectStabSet('stab')">Reset to Default (🗡️ Stab)</button>
       </div>
 
+      <div id="shopTabSmelter" style="display:none">
+        <p class="cust-intro">Refine raw ore into rarer materials.</p>
+        <div class="shop-item">
+          <div class="shop-item-name">🟧 25 Copper → ⬜ 5 Silver</div>
+          <div class="shop-item-row"><span id="smeltCopperOwned">Have: 0</span><button onclick="smelt('copper','silver')">Smelt</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-name">⬜ 25 Silver → 🟨 5 Gold</div>
+          <div class="shop-item-row"><span id="smeltSilverOwned">Have: 0</span><button onclick="smelt('silver','gold')">Smelt</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-name">🟨 25 Gold → 🟦 5 Platinum</div>
+          <div class="shop-item-row"><span id="smeltGoldOwned">Have: 0</span><button onclick="smelt('gold','platinum')">Smelt</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-name">🟦 25 Platinum → 🟩 5 Chlorophyte</div>
+          <div class="shop-item-row"><span id="smeltPlatinumOwned">Have: 0</span><button onclick="smelt('platinum','chlorophyte')">Smelt</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-name">🟩 25 Chlorophyte → 🟪 5 Hallowed Metal</div>
+          <div class="shop-item-row"><span id="smeltChloroOwned">Have: 0</span><button onclick="smelt('chlorophyte','hallowed')">Smelt</button></div>
+        </div>
+      </div>
+
       <button id="closeShopBtn" onclick="toggleShop()">Close</button>
     </div>
   </div>
@@ -405,15 +468,19 @@
       <button id="useOracleBtn" onclick="useOracle()">🔮 Use (<span id="oracleCount">0</span>)</button>
       <button id="useSonarBtn" onclick="armSonar()">🎯 Use (<span id="sonarCount">0</span>)</button>
       <button id="useMidasBtn" onclick="useMidasSpark()">✨ Use (<span id="midasCount">0</span>)</button>
-      <button id="useSmokeBtn" onclick="useSmokeBomb()">💨 Use (<span id="smokeCount">0</span>)</button>
+          <button id="useSmokeBtn" onclick="useSmokeBomb()">💨 Use (<span id="smokeCount">0</span>)</button>
+      <span id="armorStatus">🪖 x0</span>
+      <span id="reactorStatus">☢️ x0</span>
+      <button id="useDrillBtn" onclick="useHandDrill()">⛏️ Use (<span id="drillCount">0</span>)</button>
+      <button id="useLiftBtn" onclick="useHazardLift()">🎲 Use (<span id="liftCount">0</span>)</button>
     </div>  
-        <div id="mineralBar">
-      <span>🟠 x<span id="mCopper">0</span></span>
-      <span>🪙 x<span id="mSilver">0</span></span>
-      <span>💰 x<span id="mGold">0</span></span>
-      <span>💎 x<span id="mPlatinum">0</span></span>
-      <span>🌿 x<span id="mChloro">0</span></span>
-      <span>🌟 x<span id="mHallowed">0</span></span>
+         <div id="mineralBar">
+      <span>🟧 x<span id="mCopper">0</span></span>
+      <span>⬜ x<span id="mSilver">0</span></span>
+      <span>🟨 x<span id="mGold">0</span></span>
+      <span>🟦 x<span id="mPlatinum">0</span></span>
+      <span>🟩 x<span id="mChloro">0</span></span>
+      <span>🟪 x<span id="mHallowed">0</span></span>
     </div>
     <div id="boardWrap"><div id="board"></div></div>
   </div>
@@ -556,12 +623,12 @@
 
   // --- Minerales (solo en Radioactive Mines) ---
   const MINERAL_TIERS = {
-    copper:      { emoji: "🟠", color: "#B87333" },
-    silver:      { emoji: "🪙", color: "#C0C0C0" },
-    gold:        { emoji: "💰", color: "#FFD700" },
-    platinum:    { emoji: "💎", color: "#00FFFF" },
-    chlorophyte: { emoji: "🌿", color: "#39FF14" },
-    hallowed:    { emoji: "🌟", color: "#FF00FF" }
+    copper:      { emoji: "🟧", color: "#B87333" },
+    silver:      { emoji: "⬜", color: "#C0C0C0" },
+    gold:        { emoji: "🟨", color: "#FFD700" },
+    platinum:    { emoji: "🟦", color: "#00FFFF" },
+    chlorophyte: { emoji: "🟩", color: "#39FF14" },
+    hallowed:    { emoji: "🟪", color: "#A855F7" }
   };
 
   function mineralOddsForFloor(floor) {
@@ -592,6 +659,12 @@
     document.getElementById("mPlatinum").textContent = myMinerals.platinum || 0;
     document.getElementById("mChloro").textContent = myMinerals.chlorophyte || 0;
     document.getElementById("mHallowed").textContent = myMinerals.hallowed || 0;
+
+    document.getElementById("smeltCopperOwned").textContent = `Have: ${myMinerals.copper || 0}`;
+    document.getElementById("smeltSilverOwned").textContent = `Have: ${myMinerals.silver || 0}`;
+    document.getElementById("smeltGoldOwned").textContent = `Have: ${myMinerals.gold || 0}`;
+    document.getElementById("smeltPlatinumOwned").textContent = `Have: ${myMinerals.platinum || 0}`;
+    document.getElementById("smeltChloroOwned").textContent = `Have: ${myMinerals.chlorophyte || 0}`;
   }
 
   // --- Ronda individual ---
@@ -783,8 +856,10 @@
   window.switchShopTab = function (tab) {
     document.getElementById("shopTabItems").style.display = tab === "items" ? "block" : "none";
     document.getElementById("shopTabCustomize").style.display = tab === "customize" ? "block" : "none";
+    document.getElementById("shopTabSmelter").style.display = tab === "smelter" ? "block" : "none";
     document.getElementById("tabItemsBtn").classList.toggle("tab-active", tab === "items");
     document.getElementById("tabCustomizeBtn").classList.toggle("tab-active", tab === "customize");
+    document.getElementById("tabSmelterBtn").classList.toggle("tab-active", tab === "smelter");
     if (tab === "customize") {
       const current = localStorage.getItem("ms_stabset") || "stab";
       document.querySelectorAll("[data-set]").forEach((btn) => {
@@ -804,7 +879,7 @@
   };
 
   // --- Tienda ---
-  const SHOP_PRICES = { shield: 1, timeFreeze: 1, angelRevive: 1, adrenaline: 1, oracle: 1, sonar: 1, midasSpark: 1, smokeBomb: 1 };
+  const SHOP_PRICES = { shield: 1, timeFreeze: 1, angelRevive: 1, adrenaline: 1, oracle: 1, sonar: 1, midasSpark: 1, smokeBomb: 1, heavyArmor: 1, handDrill: 1, hazardLift: 1, meltdownReactor: 1 };
   let myCoins = 0;
   let myItems = { shield: 0, timeFreeze: 0, multiplier: 0 };
   let timeCreditSeconds = 0;
@@ -835,13 +910,23 @@ Reemplazar:
             document.getElementById("midasCount").textContent = myItems.midasSpark || 0;
     document.getElementById("smokeOwned").textContent = `Owned: ${myItems.smokeBomb || 0}`;
     document.getElementById("smokeCount").textContent = myItems.smokeBomb || 0;
+    document.getElementById("armorOwned").textContent = `Owned: ${myItems.heavyArmor || 0}`;
+    document.getElementById("drillOwned").textContent = `Owned: ${myItems.handDrill || 0}`;
+    document.getElementById("liftOwned").textContent = `Owned: ${myItems.hazardLift || 0}`;
+    document.getElementById("reactorOwned").textContent = `Owned: ${myItems.meltdownReactor || 0}`;
+    document.getElementById("armorStatus").textContent = `🪖 x${myItems.heavyArmor || 0}`;
+    document.getElementById("reactorStatus").textContent = `☢️ x${myItems.meltdownReactor || 0}`;
+    document.getElementById("drillCount").textContent = myItems.handDrill || 0;
+    document.getElementById("liftCount").textContent = myItems.hazardLift || 0;
         document.getElementById("radioactiveBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
-    document.getElementById("tabCustomizeBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
+        document.getElementById("tabCustomizeBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
+    document.getElementById("tabSmelterBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
+    radioactiveUnlocked = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE;
   });
 
   let shopOpen = false;
   let currentShopPage = 1;
-  const TOTAL_SHOP_PAGES = 2;
+  let radioactiveUnlocked = false;
 
   window.toggleShop = function () {
     shopOpen = !shopOpen;
@@ -850,15 +935,17 @@ Reemplazar:
   };
 
   window.shopPage = function (delta) {
-    currentShopPage = Math.min(TOTAL_SHOP_PAGES, Math.max(1, currentShopPage + delta));
+    const totalPages = radioactiveUnlocked ? 3 : 2;
+    currentShopPage = Math.min(totalPages, Math.max(1, currentShopPage + delta));
     renderShopPage();
   };
 
   function renderShopPage() {
+    const totalPages = radioactiveUnlocked ? 3 : 2;
     document.querySelectorAll(".shop-page").forEach((el) => {
       el.style.display = (+el.dataset.page === currentShopPage) ? "block" : "none";
     });
-    document.getElementById("shopPageLabel").textContent = `Page ${currentShopPage} / ${TOTAL_SHOP_PAGES}`;
+    document.getElementById("shopPageLabel").textContent = `Page ${currentShopPage} / ${totalPages}`;
   }
 
   window.buyItem = function (key) {
@@ -869,6 +956,19 @@ Reemplazar:
       current.coins = (current.coins || 0) - price;
       current.items = current.items || { shield: 0, timeFreeze: 0, multiplier: 0 };
       current.items[key] = (current.items[key] || 0) + 1;
+      return current;
+    });
+  };
+
+  const SMELT_COST = 25;
+  const SMELT_GAIN = 5;
+
+  window.smelt = function (fromTier, toTier) {
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.minerals) return current;
+      if ((current.minerals[fromTier] || 0) < SMELT_COST) return current;
+      current.minerals[fromTier] -= SMELT_COST;
+      current.minerals[toTier] = (current.minerals[toTier] || 0) + SMELT_GAIN;
       return current;
     });
   };
@@ -896,6 +996,9 @@ Reemplazar:
   let radioactiveActive = false;
   let currentFloor = 1;
   let toroidalBeforeRadioactive = false;
+  let armorChargeLeft = 0;
+  let drillArmed = false;
+  let floorStartTime = 0;
 
   window.startRadioactive = function () {
     toroidalBeforeRadioactive = toroidalMode;
@@ -910,6 +1013,9 @@ Reemplazar:
     smokeArmed = false;
     midasUsedThisRound = false;
     goldenMineIdx = null;
+    armorChargeLeft = 0;
+    drillArmed = false;
+    floorStartTime = Date.now();
 
     cells = generateSolvableBoard();
     roundActive = true;
@@ -932,23 +1038,36 @@ Reemplazar:
     });
     roundScore += CLEAR_BOARD_BONUS;
 
+    const clearedFast = (Date.now() - floorStartTime) < 60000;
+    let dropAmount = 25;
+    if (clearedFast && (myItems.meltdownReactor || 0) > 0) {
+      dropAmount = Math.round(dropAmount * 1.5);
+      myItems.meltdownReactor -= 1;
+      runTransaction(ref(db, "players/current/" + playerId), (current) => {
+        if (!current || !current.items || !current.items.meltdownReactor) return current;
+        current.items.meltdownReactor -= 1;
+        return current;
+      });
+    }
+
     const droppedTier = rollMineralTier(currentFloor);
-    const MINERAL_DROP_AMOUNT = 25; // 👈 cuantos ores te da cada drop
-    myMinerals[droppedTier] = (myMinerals[droppedTier] || 0) + MINERAL_DROP_AMOUNT;
+    myMinerals[droppedTier] = (myMinerals[droppedTier] || 0) + dropAmount;
     renderMineralBar();
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
       if (!current) return current;
       current.minerals = current.minerals || {};
-      current.minerals[droppedTier] = (current.minerals[droppedTier] || 0) + MINERAL_DROP_AMOUNT;
+      current.minerals[droppedTier] = (current.minerals[droppedTier] || 0) + dropAmount;
       return current;
     });
 
     currentFloor++;
+    floorStartTime = Date.now();
 
     oracleHighlightIdx = null;
     goldenMineIdx = null;
     midasUsedThisRound = false;
     sonarArmed = false;
+    drillArmed = false;
 
     cells = generateSolvableBoard();
     document.getElementById("radioactiveFloor").textContent = currentFloor;
@@ -1090,6 +1209,56 @@ Reemplazar:
     renderBoard();
   }
 
+  window.useHandDrill = function () {
+    if (!roundActive || (myItems.handDrill || 0) <= 0 || drillArmed) return;
+    drillArmed = true;
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.handDrill) return current;
+      current.items.handDrill -= 1;
+      return current;
+    });
+  };
+
+  function applyHandDrill(row, col) {
+    const targets = [];
+    for (let dc = -2; dc <= 2; dc++) {
+      let cc = col + dc;
+      if (toroidalMode) cc = ((cc % COLS) + COLS) % COLS;
+      else if (cc < 0 || cc >= COLS) continue;
+      targets.push(row * COLS + cc);
+    }
+    targets.forEach((idx) => {
+      cells[idx].mine = false;
+      cells[idx].smokeSafe = true;
+    });
+    recomputeAdjacents();
+    renderBoard();
+  }
+
+  window.useHazardLift = function () {
+    if (!roundActive || !radioactiveActive || (myItems.hazardLift || 0) <= 0) return;
+    runTransaction(ref(db, "players/current/" + playerId), (current) => {
+      if (!current || !current.items || !current.items.hazardLift) return current;
+      current.items.hazardLift -= 1;
+      return current;
+    });
+
+    if (Math.random() < 0.4) {
+      advanceFloor();
+    } else {
+      currentFloor = Math.max(1, currentFloor - 1);
+      floorStartTime = Date.now();
+      oracleHighlightIdx = null;
+      goldenMineIdx = null;
+      midasUsedThisRound = false;
+      sonarArmed = false;
+      drillArmed = false;
+      cells = generateSolvableBoard();
+      document.getElementById("radioactiveFloor").textContent = currentFloor;
+      renderBoard();
+    }
+  };
+
   window.toggleFlagMode = function () {
     flagMode = !flagMode;
     if (radioactiveActive) {
@@ -1154,6 +1323,8 @@ Reemplazar:
     smokeArmed = false;
     midasUsedThisRound = false;
     goldenMineIdx = null;
+    armorChargeLeft = 0;
+    drillArmed = false;
 
     document.getElementById("roundIntro").style.display = "none";    document.getElementById("roundArea").style.display = "block";
     document.getElementById("result").textContent = "";
@@ -1175,6 +1346,12 @@ Reemplazar:
     if (smokeArmed) {
       smokeArmed = false;
       applySmokeBomb(row, col);
+      return;
+    }
+
+    if (drillArmed) {
+      drillArmed = false;
+      applyHandDrill(row, col);
       return;
     }
 
@@ -1206,6 +1383,18 @@ Reemplazar:
       runTransaction(ref(db, "players/current/" + playerId), (current) => {
         if (!current || !current.items || !current.items.angelRevive) return current;
         current.items.angelRevive -= 1;
+        return current;
+      });
+      hitMine = false;
+    } else if (hitMine && armorChargeLeft > 0) {
+      armorChargeLeft -= 1;
+      hitMine = false;
+    } else if (hitMine && (myItems.heavyArmor || 0) > 0) {
+      myItems.heavyArmor -= 1;
+      armorChargeLeft = 1;
+      runTransaction(ref(db, "players/current/" + playerId), (current) => {
+        if (!current || !current.items || !current.items.heavyArmor) return current;
+        current.items.heavyArmor -= 1;
         return current;
       });
       hitMine = false;
