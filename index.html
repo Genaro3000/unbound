@@ -909,7 +909,6 @@
   onValue(ref(db, "players/current/" + playerId), (snap) => {
     const me = snap.val();
     if (!me) return;
-Reemplazar:
     myCoins = me.coins || 0;
     myItems = me.items || { shield: 0, timeFreeze: 0, multiplier: 0 };
     myMinerals = me.minerals || { copper: 0, silver: 0, gold: 0, platinum: 0, chlorophyte: 0, hallowed: 0 };
@@ -1064,11 +1063,11 @@ Reemplazar:
     const startSet = getStabSet();
     document.getElementById("flagModeBtn").textContent = `${startSet.digEmoji} Switch to ${startSet.digLabel}`;
     document.getElementById("result").textContent = "";
-    document.getElementById("roundScoreVal").textContent = roundScore;
+    document.getElementById("roundScoreVal").textContent = "0";
     renderBoard();
   };
 
-  function advanceFloor() 
+  function advanceFloor() {
     cells.forEach((c, i) => {
       if (c.mine && !c.flagged) roundScore += (i === goldenMineIdx ? 10 : MINE_FLAG_POINTS);
     });
