@@ -184,7 +184,7 @@
   }
   #closeShopBtn { width: 100%; margin-top: 14px; }
 
-    #bagBtn { width: auto; padding: 8px 14px; font-size: 13px; }
+    #bagBtn { padding: 8px 14px; border-radius: 10px; border: none; background: #ffffff; color: #000000; font-family: var(--font-display); font-weight: 700; font-size: 16px; cursor: pointer; width: auto; }
   #bagModal {
     position: fixed; inset: 0; background: rgba(0,0,0,0.6);
     display: flex; align-items: center; justify-content: center; z-index: 55; padding: 16px;
@@ -519,7 +519,7 @@
       <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
       <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
       <button id="exitRoundBtn" onclick="exitRound()" title="Exit to Main Screen">🏠</button>
-      <button id="bagBtn" onclick="toggleBag()">🎒 Bag</button>
+      <button id="bagBtn" onclick="toggleBag()">🎒</button>
     </div>
     <div id="boardWrap"><div id="board"></div></div>
   </div>
@@ -985,7 +985,7 @@
       const left = itemUsesLeft[it.key] !== undefined ? itemUsesLeft[it.key] : ITEM_USES_PER_ROUND[it.key];
       const row = document.createElement("div");
       row.className = "bag-item";
-      row.innerHTML = `<span class="bag-item-name">${it.emoji} ${it.name}</span><span>${left > 0 ? "Ready" : "Used"}</span>`;
+      row.innerHTML = `<span class="bag-item-name">${it.emoji} ${it.name}</span><span>Owned — ${left > 0 ? "Ready" : "Used"}</span>`;
       passiveList.appendChild(row);
     });
   }
