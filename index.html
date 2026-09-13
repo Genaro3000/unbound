@@ -1034,12 +1034,16 @@
     document.getElementById("shopPageLabel").textContent = `Page ${currentShopPage} / ${totalPages}`;
   }
 
+  const isAdmin = params.get("admin") === ADMIN_CODE;
+
   window.buyItem = function (key) {
     const price = SHOP_PRICES[key];
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
       if (!current) return current;
-      if ((current.coins || 0) < price) return current;
-      current.coins = (current.coins || 0) - price;
+      if (!isAdmin) {
+        if ((current.coins || 0) < price) return current;
+        current.coins = (current.coins || 0) - price;
+      }
       current.items = current.items || { shield: 0, timeFreeze: 0, multiplier: 0 };
       current.items[key] = (current.items[key] || 0) + 1;
       return current;
@@ -1051,9 +1055,12 @@
 
   window.smelt = function (fromTier, toTier) {
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.minerals) return current;
-      if ((current.minerals[fromTier] || 0) < SMELT_COST) return current;
-      current.minerals[fromTier] -= SMELT_COST;
+      if (!current) return current;
+      current.minerals = current.minerals || {};
+      if (!isAdmin) {
+        if ((current.minerals[fromTier] || 0) < SMELT_COST) return current;
+        current.minerals[fromTier] -= SMELT_COST;
+      }
       current.minerals[toTier] = (current.minerals[toTier] || 0) + SMELT_GAIN;
       return current;
     });
@@ -1072,10 +1079,12 @@
       if (!current) return current;
       const items = current.items || {};
       const minerals = current.minerals || {};
-      for (const k in recipe.items) if ((items[k] || 0) < recipe.items[k]) return current;
-      for (const k in recipe.minerals) if ((minerals[k] || 0) < recipe.minerals[k]) return current;
-      for (const k in recipe.items) items[k] -= recipe.items[k];
-      for (const k in recipe.minerals) minerals[k] -= recipe.minerals[k];
+      if (!isAdmin) {
+        for (const k in recipe.items) if ((items[k] || 0) < recipe.items[k]) return current;
+        for (const k in recipe.minerals) if ((minerals[k] || 0) < recipe.minerals[k]) return current;
+        for (const k in recipe.items) items[k] -= recipe.items[k];
+        for (const k in recipe.minerals) minerals[k] -= recipe.minerals[k];
+      }
       current.items = items;
       current.items[key] = (current.items[key] || 0) + 1;
       current.minerals = minerals;
