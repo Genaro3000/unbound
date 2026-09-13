@@ -257,6 +257,9 @@
     <b>Host Panel</b>
     <p style="margin:8px 0;">Wipes the leaderboard back to zero for everyone.</p>
     <button id="adminBtn" onclick="resetLeaderboard()">Reset Leaderboard</button>
+    <p style="margin:12px 0 4px;">🛗 Floor Elevator (video/testing only)</p>
+    <input id="adminFloorInput" type="number" min="1" max="30" value="1" style="width:60px; padding:6px; border-radius:6px; border:1px solid var(--panel-border); background:var(--bg); color:var(--text);" />
+    <button onclick="adminJumpToFloor()">Jump to Floor</button>
   </div>
 
   <button id="leaderboardBtn" onclick="toggleLeaderboard()">🏆 Show Leaderboard</button>
@@ -1156,6 +1159,46 @@
     midasUsedThisRound = false;
     goldenMineIdx = null;
          armorChargeLeft = 0;
+    voidArmed = false;
+    supernovaBonusActive = false;
+    floorMineralMultiplier = 1;
+    titanChargesLeft = 0;
+    titanConsumedThisRound = false;
+    titanRevivedThisRound = false;
+    floorStartTime = Date.now();
+    isFirstClick = true;
+
+    cells = generateSolvableBoard();
+    roundActive = true;
+
+    document.getElementById("roundIntro").style.display = "none";
+    document.getElementById("roundArea").style.display = "block";
+    document.getElementById("radioactiveFloorRow").style.display = "block";
+    document.getElementById("radioactiveFloor").textContent = currentFloor;
+    flagMode = false;
+    const startSet = getStabSet();
+    document.getElementById("flagModeBtn").textContent = `${startSet.digEmoji} Switch to ${startSet.digLabel}`;
+    document.getElementById("result").textContent = "";
+    updateProgressDisplay();
+    renderBoard();
+  };
+
+  window.adminJumpToFloor = function () {
+    const target = Math.min(30, Math.max(1, parseInt(document.getElementById("adminFloorInput").value, 10) || 1));
+
+    toroidalBeforeRadioactive = toroidalMode;
+    toroidalMode = true;
+    radioactiveActive = true;
+    currentFloor = target;
+    roundScore = 0;
+    timeCreditSeconds = 0;
+    timePenaltySeconds = 0;
+    oracleHighlightIdx = null;
+    sonarArmed = false;
+    smokeArmed = false;
+    midasUsedThisRound = false;
+    goldenMineIdx = null;
+    armorChargeLeft = 0;
     voidArmed = false;
     supernovaBonusActive = false;
     floorMineralMultiplier = 1;
