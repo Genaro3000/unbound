@@ -990,92 +990,7 @@
     });
   }
 
-  const ITEM_USES_PER_ROUND = {
-    oracle: 1, timeFreeze: 1, midasSpark: 1, adrenaline: 1,
-    sonar: 2, smokeBomb: 2,
-    shield: 1, angelRevive: 1,
-    hazardLift: 1, meltdownReactor: 1,
-    mineBolt: 2, heavyArmor: 1
-  };
-  let itemUsesLeft = {};
-
-  function resetItemUses() {
-    itemUsesLeft = {};
-    for (const key in ITEM_USES_PER_ROUND) itemUsesLeft[key] = ITEM_USES_PER_ROUND[key];
-    if (bagOpen) renderBag();
-  }
-
-  function hasUsesLeft(key) {
-    if (!myItems[key]) return false;
-    const left = itemUsesLeft[key] === undefined ? ITEM_USES_PER_ROUND[key] : itemUsesLeft[key];
-    return left > 0;
-  }
-
-  function consumeUse(key) {
-    if (itemUsesLeft[key] === undefined) itemUsesLeft[key] = ITEM_USES_PER_ROUND[key];
-    itemUsesLeft[key] = Math.max(0, itemUsesLeft[key] - 1);
-    if (bagOpen) renderBag();
-  }
-
-  const ACTIVE_ITEMS = [
-    { key: "oracle", emoji: "🔮", name: "Oracle", useFn: "useOracle" },
-    { key: "midasSpark", emoji: "🪙", name: "Midas Spark", useFn: "useMidasSpark" },
-    { key: "sonar", emoji: "🎯", name: "Sonar Pulse", useFn: "armSonar" },
-    { key: "smokeBomb", emoji: "💨", name: "Smoke Bomb", useFn: "useSmokeBomb" },
-    { key: "hazardLift", emoji: "🎲", name: "Hazard Lift", useFn: "useHazardLift" },
-    { key: "mineBolt", emoji: "🔩", name: "Mine Bolt", useFn: "useMineBolt" }
-  ];
-  const PASSIVE_ITEMS = [
-    { key: "timeFreeze", emoji: "❄️", name: "Time Freeze" },
-    { key: "adrenaline", emoji: "💉", name: "Adrenaline Shot" },
-    { key: "shield", emoji: "🛡️", name: "Shield" },
-    { key: "angelRevive", emoji: "🪽", name: "Angelic Revive" },
-    { key: "meltdownReactor", emoji: "☢️", name: "Meltdown Reactor" },
-    { key: "heavyArmor", emoji: "🪖", name: "Heavy Armor" }
-  ];
-
-  let bagOpen = false;
-  window.toggleBag = function () {
-    bagOpen = !bagOpen;
-    document.getElementById("bagModal").style.display = bagOpen ? "flex" : "none";
-    if (bagOpen) renderBag();
-  };
-
-  function renderBag() {
-    document.getElementById("bagCopper").textContent = myMinerals.copper || 0;
-    document.getElementById("bagSilver").textContent = myMinerals.silver || 0;
-    document.getElementById("bagGold").textContent = myMinerals.gold || 0;
-    document.getElementById("bagPlatinum").textContent = myMinerals.platinum || 0;
-    document.getElementById("bagChloro").textContent = myMinerals.chlorophyte || 0;
-    document.getElementById("bagHallowed").textContent = myMinerals.hallowed || 0;
-
-    const activeList = document.getElementById("bagActiveList");
-    activeList.innerHTML = "";
-    const ownedActive = ACTIVE_ITEMS.filter((it) => myItems[it.key]);
-    if (ownedActive.length === 0) activeList.innerHTML = '<div class="bag-empty">No active items yet.</div>';
-    ownedActive.forEach((it) => {
-      const left = itemUsesLeft[it.key] !== undefined ? itemUsesLeft[it.key] : ITEM_USES_PER_ROUND[it.key];
-      const row = document.createElement("div");
-      row.className = "bag-item";
-      row.innerHTML = `<span class="bag-item-name">${it.emoji} ${it.name}</span><button ${left <= 0 ? "disabled" : ""} onclick="${it.useFn}()">Use (${left})</button>`;
-      activeList.appendChild(row);
-    });
-
-    const passiveList = document.getElementById("bagPassiveList");
-    passiveList.innerHTML = "";
-    const ownedPassive = PASSIVE_ITEMS.filter((it) => myItems[it.key]);
-    if (ownedPassive.length === 0) passiveList.innerHTML = '<div class="bag-empty">No passive items yet.</div>';
-    ownedPassive.forEach((it) => {
-      const left = itemUsesLeft[it.key] !== undefined ? itemUsesLeft[it.key] : ITEM_USES_PER_ROUND[it.key];
-      const row = document.createElement("div");
-      row.className = "bag-item";
-      row.innerHTML = `<span class="bag-item-name">${it.emoji} ${it.name}</span><span>${left > 0 ? "Ready" : "Used"}</span>`;
-      passiveList.appendChild(row);
-    });
-  }
-
-  const STAB_SETS = {
-    stab:        { name: "Stab",             digEmoji: "🗡️", digLabel: "Stab",  markEmoji: "⚔️" },
+  const STAB_SETS = {    stab:        { name: "Stab",             digEmoji: "🗡️", digLabel: "Stab",  markEmoji: "⚔️" },
     overvoltage: { name: "Overvoltage",      digEmoji: "⚡",  digLabel: "Zap",   markEmoji: "⚠️" },
     apex:        { name: "Apex Predator",    digEmoji: "🐍",  digLabel: "Bite",  markEmoji: "🩸" },
     vaultbreaker:{ name: "Vault Breaker",    digEmoji: "🔓",  digLabel: "Pick",  markEmoji: "🔒" },
@@ -1134,7 +1049,7 @@
   // --- Tienda ---
   const SHOP_PRICES = { shield: 1, timeFreeze: 1, angelRevive: 1, adrenaline: 1, oracle: 1, sonar: 1, midasSpark: 1, smokeBomb: 1, heavyArmor: 1, mineBolt: 1, hazardLift: 1, meltdownReactor: 1 };
   let myCoins = 0;
-  let myItems = { shield: 0, timeFreeze: 0, multiplier: 0 };
+  let myItems = {};
   let timeCreditSeconds = 0;
   let multiplierActiveUntil = 0;
 
@@ -1142,7 +1057,7 @@
     const me = snap.val();
     if (!me) return;
     myCoins = me.coins || 0;
-    myItems = me.items || { shield: 0, timeFreeze: 0, multiplier: 0 };
+    myItems = me.items || {};
     myMinerals = me.minerals || { copper: 0, silver: 0, gold: 0, platinum: 0, chlorophyte: 0, hallowed: 0 };
     renderMineralBar();
     document.getElementById("coinsDisplay").textContent = `${myCoins} Coins`;
