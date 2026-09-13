@@ -172,6 +172,8 @@
   #shopBox h3 { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-display); margin: 0 0 14px; }
   #coinsDisplay { color: #38BDF8; font-size: 13px; }
   .shop-item { border-top: 1px solid var(--panel-border); padding: 12px 0; }
+  #shopTabFusion .shop-item { padding: 16px 0; }
+  #shopTabFusion .shop-item-desc { line-height: 1.5; margin-bottom: 12px; }
   .shop-item-name { font-weight: 700; margin-bottom: 4px; }
   .shop-item-desc { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
   .shop-item-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -311,7 +313,7 @@
 
       <div class="shop-item">
         <div class="shop-item-name">💉️ Adrenaline Shot</div>
-        <div class="shop-item-desc">Clear the board in under 60s for a 1.5x score bonus.</div>
+        <div class="shop-item-desc">Clear the board in under 60s for a x1.5 score bonus.</div>
         <div class="shop-item-row">
           <span id="adrenalineOwned">Owned: 0</span>
           <button onclick="buyItem('adrenaline')">Buy - 75 Coins</button>
@@ -369,7 +371,7 @@
 
       <div class="shop-item">
         <div class="shop-item-name">☢️ Meltdown Reactor</div>
-        <div class="shop-item-desc">Clear a floor in under 60s for 1.5x minerals from that drop.</div>
+        <div class="shop-item-desc">Clear a floor in under 60s for x1.5 minerals from that drop.</div>
         <div class="shop-item-row">
           <span id="reactorOwned">Owned: 0</span>
           <button onclick="buyItem('meltdownReactor')">Buy - 100 Coins</button>
@@ -458,26 +460,26 @@
         <p class="cust-intro">Combine items and ore into something far more powerful.</p>
 
         <div class="shop-item">
-          <div class="shop-item-name">💥 Void Executioner</div>
-          <div class="shop-item-desc">Needs: Oracle + Sonar Pulse + Mine Bolt + 🟨20 Gold + 🟦10 Platinum.<br>Effect: Welds every mine in a 5x5 blast zone into place, and flashes 5 other random mines across the board for 0.5s.</div>
+          <div class="shop-item-name">📡 Hyper Lock-on Engine</div>
+          <div class="shop-item-desc">Needs: Oracle, Sonar Pulse, Mine Bolt, 🟨20 Gold, 🟦10 Platinum.<br>Locks every mine in a 5x5 zone and flashes 5 more mines.</div>
           <div class="shop-item-row"><span id="voidOwned">Owned: 0</span><button onclick="fuseItem('voidExecutioner')">Fuse</button></div>
         </div>
 
         <div class="shop-item">
           <div class="shop-item-name">⚡ Supernova Stasis-Core</div>
-          <div class="shop-item-desc">Needs: Time Freeze + Adrenaline Shot + Meltdown Reactor + 🟦15 Platinum + 🟩10 Chlorophyte.<br>Effect: Buys you 10 free seconds. Clear the floor in under 90s afterward for 1.5x points AND 1.5x ore on that drop.</div>
+          <div class="shop-item-desc">Needs: Time Freeze, Adrenaline Shot, Meltdown Reactor, 🟦15 Platinum, 🟩10 Chlorophyte.<br>+10s free. Clear the floor under 90s for x1.5 points and x1.5 ore.</div>
           <div class="shop-item-row"><span id="supernovaOwned">Owned: 0</span><button onclick="fuseItem('supernovaCore')">Fuse</button></div>
         </div>
 
         <div class="shop-item">
           <div class="shop-item-name">👑 Phantom Midas-Rift</div>
-          <div class="shop-item-desc">Needs: Midas Spark + Smoke Bomb + Hazard Lift + 🟩15 Chlorophyte + 🟪5 Hallowed.<br>Effect: 35% chance to warp into a Midas Vault floor with double minerals. 65% chance to drop one floor deeper with a free 2x2 Smoke Shield waiting for you.</div>
+          <div class="shop-item-desc">Needs: Midas Spark, Smoke Bomb, Hazard Lift, 🟩15 Chlorophyte, 🟪5 Hallowed.<br>35% warps to a Vault floor (2x minerals). 65% drops 1 floor with a free Smoke Shield.</div>
           <div class="shop-item-row"><span id="phantomOwned">Owned: 0</span><button onclick="fuseItem('phantomMidasRift')">Fuse</button></div>
         </div>
 
         <div class="shop-item">
           <div class="shop-item-name">🔱 Titan-Forge Exosuit</div>
-          <div class="shop-item-desc">Needs: Shield + Angelic Revive + Heavy Armor + 🟩20 Chlorophyte + 🟪10 Hallowed.<br>Effect: Passive. Guarantees 1st-click immunity and tanks 3 mine hits. If a 4th hit would kill you, it auto-resurrects you with 1 Shield charge live.</div>
+          <div class="shop-item-desc">Needs: Shield, Angelic Revive, Heavy Armor, 🟩20 Chlorophyte, 🟪10 Hallowed.<br>Passive. Tanks 3 hits + 1st-click immunity. Auto-revives once with a free Shield.</div>>
           <div class="shop-item-row"><span id="titanOwned">Owned: 0</span><button onclick="fuseItem('titanForgeExosuit')">Fuse</button></div>
         </div>
       </div>
@@ -516,7 +518,7 @@
       <span id="armorStatus">🪖 x0</span>
       <span id="reactorStatus">☢️ x0</span>
         <button id="useMineBoltBtn" onclick="useMineBolt()">🔩 Use (<span id="mineBoltCount">0</span>)</button>
-      <button id="useVoidBtn" onclick="useVoidExecutioner()">💥 Use (<span id="voidCount">0</span>)</button>
+      <button id="useVoidBtn" onclick="useVoidExecutioner()">📡 Use (<span id="voidCount">0</span>)</button>
       <button id="useSupernovaBtn" onclick="useSupernovaCore()">⚡ Use (<span id="supernovaCount">0</span>)</button>
       <button id="usePhantomBtn" onclick="usePhantomMidasRift()">👑 Use (<span id="phantomCount">0</span>)</button>
       <span id="titanStatus">🔱 x0</span>
