@@ -184,12 +184,27 @@
   }
   #closeShopBtn { width: 100%; margin-top: 14px; }
 
-  #itemBar { display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 12px; flex-wrap: wrap; font-size: 13px; }
-    #mineralBar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; font-size: 12px; color: var(--muted); }
-  #itemBar button {
-    padding: 6px 12px; border-radius: 8px; border: 1px solid var(--panel-border);
-    background: var(--panel); color: var(--text); cursor: pointer; font-size: 12px;
+    #bagBtn { width: auto; padding: 8px 14px; font-size: 13px; }
+  #bagModal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center; z-index: 55; padding: 16px;
   }
+  #bagBox {
+    background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px;
+    padding: 20px; width: 100%; max-width: 360px; max-height: 85vh; overflow-y: auto; text-align: left;
+  }
+  #bagBox h3 { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-display); margin: 0 0 14px; }
+  #bagBox h4 { font-family: var(--font-display); font-size: 12px; color: var(--muted); margin: 16px 0 6px; }
+  #closeBagBtn { background: none; border: none; color: var(--text); font-size: 16px; cursor: pointer; }
+  #bagMinerals { display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+  .bag-item { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--panel-border); padding: 10px 0; font-size: 13px; }
+  .bag-item-name { display: flex; align-items: center; gap: 8px; }
+  .bag-empty { color: var(--muted); font-size: 12px; padding: 8px 0; }
+  .bag-item button {
+    padding: 6px 12px; border-radius: 8px; border: none; background: #ffffff; color: #000000;
+    font-weight: 700; font-size: 12px; cursor: pointer;
+  }
+  .bag-item button:disabled { opacity: 0.4; cursor: default; }
 
   #personalScore { font-family: var(--font-display); font-weight: 700; margin-bottom: 12px; }
 
@@ -504,32 +519,7 @@
       <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
       <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
       <button id="exitRoundBtn" onclick="exitRound()" title="Exit to Main Screen">🏠</button>
-    </div>
-    <div id="itemBar">
-      <span id="shieldStatus">🛡️ x0</span>
-      <span id="angelStatus">🪽 x0</span>
-      <span id="adrenalineStatus">💉 x0</span>
-      <button id="useFreezeBtn" onclick="useTimeFreeze()">❄️ Use (<span id="freezeCount">0</span>)</button>
-      <button id="useOracleBtn" onclick="useOracle()">🔮 Use (<span id="oracleCount">0</span>)</button>
-      <button id="useSonarBtn" onclick="armSonar()">🎯 Use (<span id="sonarCount">0</span>)</button>
-      <button id="useMidasBtn" onclick="useMidasSpark()">✨ Use (<span id="midasCount">0</span>)</button>
-          <button id="useSmokeBtn" onclick="useSmokeBomb()">💨 Use (<span id="smokeCount">0</span>)</button>
-      <span id="armorStatus">🪖 x0</span>
-      <span id="reactorStatus">☢️ x0</span>
-        <button id="useMineBoltBtn" onclick="useMineBolt()">🔩 Use (<span id="mineBoltCount">0</span>)</button>
-      <button id="useVoidBtn" onclick="useVoidExecutioner()">📡 Use (<span id="voidCount">0</span>)</button>
-      <button id="useSupernovaBtn" onclick="useSupernovaCore()">⚡ Use (<span id="supernovaCount">0</span>)</button>
-      <button id="usePhantomBtn" onclick="usePhantomMidasRift()">👑 Use (<span id="phantomCount">0</span>)</button>
-      <span id="titanStatus">🔱 x0</span>
-      <button id="useLiftBtn" onclick="useHazardLift()">🎲 Use (<span id="liftCount">0</span>)</button>
-    </div>  
-         <div id="mineralBar">
-      <span>🟧 x<span id="mCopper">0</span></span>
-      <span>⬜ x<span id="mSilver">0</span></span>
-      <span>🟨 x<span id="mGold">0</span></span>
-      <span>🟦 x<span id="mPlatinum">0</span></span>
-      <span>🟩 x<span id="mChloro">0</span></span>
-      <span>🟪 x<span id="mHallowed">0</span></span>
+      <button id="bagBtn" onclick="toggleBag()">🎒 Bag</button>
     </div>
     <div id="boardWrap"><div id="board"></div></div>
   </div>
@@ -539,6 +529,24 @@
         <p>Save your progress on this run, or cancel and keep playing?</p>
         <button onclick="confirmSaveExit()">💾 Save & Exit</button>
         <button onclick="closeExitConfirm()">↩️ Cancel</button>
+      </div>
+    </div>
+
+    <div id="bagModal" style="display:none">
+      <div id="bagBox">
+        <h3>🎒 Inventory <button id="closeBagBtn" onclick="toggleBag()">✕</button></h3>
+        <div id="bagMinerals">
+          <span>🟧 x<span id="bagCopper">0</span></span>
+          <span>⬜ x<span id="bagSilver">0</span></span>
+          <span>🟨 x<span id="bagGold">0</span></span>
+          <span>🟦 x<span id="bagPlatinum">0</span></span>
+          <span>🟩 x<span id="bagChloro">0</span></span>
+          <span>🟪 x<span id="bagHallowed">0</span></span>
+        </div>
+        <h4>Active</h4>
+        <div id="bagActiveList"></div>
+        <h4>Passive</h4>
+        <div id="bagPassiveList"></div>
       </div>
     </div>
 
@@ -896,7 +904,175 @@
   let flagMode = false;
   const MINE_FLAG_POINTS = 0; // ya no se dan puntos por marcar minas
     const CLEAR_BOARD_BONUS = 100; // puntos fijos por completar el tablero entero
-    const RADIOACTIVE_UNLOCK_SCORE = 1; // 👈 puntaje total necesario para desbloquear el modo
+        const RADIOACTIVE_UNLOCK_SCORE = 1; // 👈 puntaje total necesario para desbloquear el modo
+
+  const ITEM_USES_PER_ROUND = {
+    oracle: 1, timeFreeze: 1, midasSpark: 1, adrenaline: 1,
+    sonar: 2, smokeBomb: 2,
+    shield: 1, angelRevive: 1,
+    hazardLift: 1, meltdownReactor: 1,
+    mineBolt: 2, heavyArmor: 1
+  };
+  let itemUsesLeft = {};
+
+  function resetItemUses() {
+    itemUsesLeft = {};
+    for (const key in ITEM_USES_PER_ROUND) itemUsesLeft[key] = ITEM_USES_PER_ROUND[key];
+    if (bagOpen) renderBag();
+  }
+
+  function hasUsesLeft(key) {
+    if (!myItems[key]) return false;
+    const left = itemUsesLeft[key] === undefined ? ITEM_USES_PER_ROUND[key] : itemUsesLeft[key];
+    return left > 0;
+  }
+
+  function consumeUse(key) {
+    if (itemUsesLeft[key] === undefined) itemUsesLeft[key] = ITEM_USES_PER_ROUND[key];
+    itemUsesLeft[key] = Math.max(0, itemUsesLeft[key] - 1);
+    if (bagOpen) renderBag();
+  }
+
+  const ACTIVE_ITEMS = [
+    { key: "oracle", emoji: "🔮", name: "Oracle", useFn: "useOracle" },
+    { key: "midasSpark", emoji: "🪙", name: "Midas Spark", useFn: "useMidasSpark" },
+    { key: "sonar", emoji: "🎯", name: "Sonar Pulse", useFn: "armSonar" },
+    { key: "smokeBomb", emoji: "💨", name: "Smoke Bomb", useFn: "useSmokeBomb" },
+    { key: "hazardLift", emoji: "🎲", name: "Hazard Lift", useFn: "useHazardLift" },
+    { key: "mineBolt", emoji: "🔩", name: "Mine Bolt", useFn: "useMineBolt" }
+  ];
+  const PASSIVE_ITEMS = [
+    { key: "timeFreeze", emoji: "❄️", name: "Time Freeze" },
+    { key: "adrenaline", emoji: "💉", name: "Adrenaline Shot" },
+    { key: "shield", emoji: "🛡️", name: "Shield" },
+    { key: "angelRevive", emoji: "🪽", name: "Angelic Revive" },
+    { key: "meltdownReactor", emoji: "☢️", name: "Meltdown Reactor" },
+    { key: "heavyArmor", emoji: "🪖", name: "Heavy Armor" }
+  ];
+
+  let bagOpen = false;
+  window.toggleBag = function () {
+    bagOpen = !bagOpen;
+    document.getElementById("bagModal").style.display = bagOpen ? "flex" : "none";
+    if (bagOpen) renderBag();
+  };
+
+  function renderBag() {
+    document.getElementById("bagCopper").textContent = myMinerals.copper || 0;
+    document.getElementById("bagSilver").textContent = myMinerals.silver || 0;
+    document.getElementById("bagGold").textContent = myMinerals.gold || 0;
+    document.getElementById("bagPlatinum").textContent = myMinerals.platinum || 0;
+    document.getElementById("bagChloro").textContent = myMinerals.chlorophyte || 0;
+    document.getElementById("bagHallowed").textContent = myMinerals.hallowed || 0;
+
+    const activeList = document.getElementById("bagActiveList");
+    activeList.innerHTML = "";
+    const ownedActive = ACTIVE_ITEMS.filter((it) => myItems[it.key]);
+    if (ownedActive.length === 0) activeList.innerHTML = '<div class="bag-empty">No active items yet.</div>';
+    ownedActive.forEach((it) => {
+      const left = itemUsesLeft[it.key] !== undefined ? itemUsesLeft[it.key] : ITEM_USES_PER_ROUND[it.key];
+      const row = document.createElement("div");
+      row.className = "bag-item";
+      row.innerHTML = `<span class="bag-item-name">${it.emoji} ${it.name}</span><button ${left <= 0 ? "disabled" : ""} onclick="${it.useFn}()">Use (${left})</button>`;
+      activeList.appendChild(row);
+    });
+
+    const passiveList = document.getElementById("bagPassiveList");
+    passiveList.innerHTML = "";
+    const ownedPassive = PASSIVE_ITEMS.filter((it) => myItems[it.key]);
+    if (ownedPassive.length === 0) passiveList.innerHTML = '<div class="bag-empty">No passive items yet.</div>';
+    ownedPassive.forEach((it) => {
+      const left = itemUsesLeft[it.key] !== undefined ? itemUsesLeft[it.key] : ITEM_USES_PER_ROUND[it.key];
+      const row = document.createElement("div");
+      row.className = "bag-item";
+      row.innerHTML = `<span class="bag-item-name">${it.emoji} ${it.name}</span><span>${left > 0 ? "Ready" : "Used"}</span>`;
+      passiveList.appendChild(row);
+    });
+  }
+
+  const ITEM_USES_PER_ROUND = {
+    oracle: 1, timeFreeze: 1, midasSpark: 1, adrenaline: 1,
+    sonar: 2, smokeBomb: 2,
+    shield: 1, angelRevive: 1,
+    hazardLift: 1, meltdownReactor: 1,
+    mineBolt: 2, heavyArmor: 1
+  };
+  let itemUsesLeft = {};
+
+  function resetItemUses() {
+    itemUsesLeft = {};
+    for (const key in ITEM_USES_PER_ROUND) itemUsesLeft[key] = ITEM_USES_PER_ROUND[key];
+    if (bagOpen) renderBag();
+  }
+
+  function hasUsesLeft(key) {
+    if (!myItems[key]) return false;
+    const left = itemUsesLeft[key] === undefined ? ITEM_USES_PER_ROUND[key] : itemUsesLeft[key];
+    return left > 0;
+  }
+
+  function consumeUse(key) {
+    if (itemUsesLeft[key] === undefined) itemUsesLeft[key] = ITEM_USES_PER_ROUND[key];
+    itemUsesLeft[key] = Math.max(0, itemUsesLeft[key] - 1);
+    if (bagOpen) renderBag();
+  }
+
+  const ACTIVE_ITEMS = [
+    { key: "oracle", emoji: "🔮", name: "Oracle", useFn: "useOracle" },
+    { key: "midasSpark", emoji: "🪙", name: "Midas Spark", useFn: "useMidasSpark" },
+    { key: "sonar", emoji: "🎯", name: "Sonar Pulse", useFn: "armSonar" },
+    { key: "smokeBomb", emoji: "💨", name: "Smoke Bomb", useFn: "useSmokeBomb" },
+    { key: "hazardLift", emoji: "🎲", name: "Hazard Lift", useFn: "useHazardLift" },
+    { key: "mineBolt", emoji: "🔩", name: "Mine Bolt", useFn: "useMineBolt" }
+  ];
+  const PASSIVE_ITEMS = [
+    { key: "timeFreeze", emoji: "❄️", name: "Time Freeze" },
+    { key: "adrenaline", emoji: "💉", name: "Adrenaline Shot" },
+    { key: "shield", emoji: "🛡️", name: "Shield" },
+    { key: "angelRevive", emoji: "🪽", name: "Angelic Revive" },
+    { key: "meltdownReactor", emoji: "☢️", name: "Meltdown Reactor" },
+    { key: "heavyArmor", emoji: "🪖", name: "Heavy Armor" }
+  ];
+
+  let bagOpen = false;
+  window.toggleBag = function () {
+    bagOpen = !bagOpen;
+    document.getElementById("bagModal").style.display = bagOpen ? "flex" : "none";
+    if (bagOpen) renderBag();
+  };
+
+  function renderBag() {
+    document.getElementById("bagCopper").textContent = myMinerals.copper || 0;
+    document.getElementById("bagSilver").textContent = myMinerals.silver || 0;
+    document.getElementById("bagGold").textContent = myMinerals.gold || 0;
+    document.getElementById("bagPlatinum").textContent = myMinerals.platinum || 0;
+    document.getElementById("bagChloro").textContent = myMinerals.chlorophyte || 0;
+    document.getElementById("bagHallowed").textContent = myMinerals.hallowed || 0;
+
+    const activeList = document.getElementById("bagActiveList");
+    activeList.innerHTML = "";
+    const ownedActive = ACTIVE_ITEMS.filter((it) => myItems[it.key]);
+    if (ownedActive.length === 0) activeList.innerHTML = '<div class="bag-empty">No active items yet.</div>';
+    ownedActive.forEach((it) => {
+      const left = itemUsesLeft[it.key] !== undefined ? itemUsesLeft[it.key] : ITEM_USES_PER_ROUND[it.key];
+      const row = document.createElement("div");
+      row.className = "bag-item";
+      row.innerHTML = `<span class="bag-item-name">${it.emoji} ${it.name}</span><button ${left <= 0 ? "disabled" : ""} onclick="${it.useFn}()">Use (${left})</button>`;
+      activeList.appendChild(row);
+    });
+
+    const passiveList = document.getElementById("bagPassiveList");
+    passiveList.innerHTML = "";
+    const ownedPassive = PASSIVE_ITEMS.filter((it) => myItems[it.key]);
+    if (ownedPassive.length === 0) passiveList.innerHTML = '<div class="bag-empty">No passive items yet.</div>';
+    ownedPassive.forEach((it) => {
+      const left = itemUsesLeft[it.key] !== undefined ? itemUsesLeft[it.key] : ITEM_USES_PER_ROUND[it.key];
+      const row = document.createElement("div");
+      row.className = "bag-item";
+      row.innerHTML = `<span class="bag-item-name">${it.emoji} ${it.name}</span><span>${left > 0 ? "Ready" : "Used"}</span>`;
+      passiveList.appendChild(row);
+    });
+  }
 
   const STAB_SETS = {
     stab:        { name: "Stab",             digEmoji: "🗡️", digLabel: "Stab",  markEmoji: "⚔️" },
@@ -970,29 +1146,6 @@
     myMinerals = me.minerals || { copper: 0, silver: 0, gold: 0, platinum: 0, chlorophyte: 0, hallowed: 0 };
     renderMineralBar();
     document.getElementById("coinsDisplay").textContent = `${myCoins} Coins`;
-    document.getElementById("shieldOwned").textContent = `Owned: ${myItems.shield || 0}`;
-    document.getElementById("timeFreezeOwned").textContent = `Owned: ${myItems.timeFreeze || 0}`; 
-    document.getElementById("shieldStatus").textContent = `🛡️ x${myItems.shield || 0}`;
-    document.getElementById("freezeCount").textContent = myItems.timeFreeze || 0; 
-    document.getElementById("angelOwned").textContent = `Owned: ${myItems.angelRevive || 0}`;
-    document.getElementById("adrenalineOwned").textContent = `Owned: ${myItems.adrenaline || 0}`;
-    document.getElementById("oracleOwned").textContent = `Owned: ${myItems.oracle || 0}`;  
-    document.getElementById("sonarOwned").textContent = `Owned: ${myItems.sonar || 0}`;
-    document.getElementById("angelStatus").textContent = `🪽 x${myItems.angelRevive || 0}`;
-    document.getElementById("adrenalineStatus").textContent = `💉 x${myItems.adrenaline || 0}`;
-    document.getElementById("oracleCount").textContent = myItems.oracle || 0;
-         document.getElementById("sonarCount").textContent = myItems.sonar || 0;
-    document.getElementById("midasOwned").textContent = `Owned: ${myItems.midasSpark || 0}`;
-            document.getElementById("midasCount").textContent = myItems.midasSpark || 0;
-    document.getElementById("smokeOwned").textContent = `Owned: ${myItems.smokeBomb || 0}`;
-    document.getElementById("smokeCount").textContent = myItems.smokeBomb || 0;
-    document.getElementById("armorOwned").textContent = `Owned: ${myItems.heavyArmor || 0}`;
-    document.getElementById("mineBoltOwned").textContent = `Owned: ${myItems.mineBolt || 0}`;
-    document.getElementById("liftOwned").textContent = `Owned: ${myItems.hazardLift || 0}`;
-    document.getElementById("reactorOwned").textContent = `Owned: ${myItems.meltdownReactor || 0}`;
-    document.getElementById("armorStatus").textContent = `🪖 x${myItems.heavyArmor || 0}`;
-    document.getElementById("reactorStatus").textContent = `☢️ x${myItems.meltdownReactor || 0}`;
-        document.getElementById("mineBoltCount").textContent = myItems.mineBolt || 0;
     document.getElementById("voidOwned").textContent = `Owned: ${myItems.voidExecutioner || 0}`;
     document.getElementById("voidCount").textContent = myItems.voidExecutioner || 0;
     document.getElementById("supernovaOwned").textContent = `Owned: ${myItems.supernovaCore || 0}`;
@@ -1002,13 +1155,13 @@
     document.getElementById("titanOwned").textContent = `Owned: ${myItems.titanForgeExosuit || 0}`;
     document.getElementById("titanStatus").textContent = `🔱 x${myItems.titanForgeExosuit || 0}`;
     document.getElementById("tabFusionBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
-    document.getElementById("liftCount").textContent = myItems.hazardLift || 0;
-        document.getElementById("radioactiveBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
+    document.getElementById("radioactiveBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
         document.getElementById("tabCustomizeBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
     document.getElementById("tabSmelterBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
         radioactiveUnlocked = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE;
     mySavedRun = me.savedRun || null;
     document.getElementById("radioactiveBtn").textContent = mySavedRun ? `▶️ Resume Run (Floor ${mySavedRun.floor})` : "☢️ Rad-Mines";
+    if (bagOpen) renderBag();
   });
 
   let shopOpen = false;
@@ -1041,12 +1194,13 @@
     const price = SHOP_PRICES[key];
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
       if (!current) return current;
+      current.items = current.items || {};
+      if (current.items[key]) return current;
       if (!isAdmin) {
         if ((current.coins || 0) < price) return current;
         current.coins = (current.coins || 0) - price;
       }
-      current.items = current.items || { shield: 0, timeFreeze: 0, multiplier: 0 };
-      current.items[key] = (current.items[key] || 0) + 1;
+      current.items[key] = true;
       return current;
     });
   };
@@ -1093,15 +1247,7 @@
     });
   };
 
-  window.useTimeFreeze = function () {
-    if (!roundActive || (myItems.timeFreeze || 0) <= 0) return;
-    timeCreditSeconds += 5;
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.timeFreeze) return current;
-      current.items.timeFreeze -= 1;
-      return current;
-    });
-  };
+
 
 
 
@@ -1117,7 +1263,7 @@
   let currentFloor = 1;
       let toroidalBeforeRadioactive = false;
   let mySavedRun = null;
-  let armorChargeLeft = 0;
+  
     let floorStartTime = 0;
   let voidArmed = false;
   let supernovaBonusActive = false;
@@ -1177,6 +1323,7 @@
     titanRevivedThisRound = false;
     floorStartTime = Date.now();
     isFirstClick = true;
+    resetItemUses();
 
     cells = generateSolvableBoard();
     roundActive = true;
@@ -1208,7 +1355,6 @@
     smokeArmed = false;
     midasUsedThisRound = false;
     goldenMineIdx = null;
-    armorChargeLeft = 0;
     voidArmed = false;
     supernovaBonusActive = false;
     floorMineralMultiplier = 1;
@@ -1217,6 +1363,7 @@
     titanRevivedThisRound = false;
     floorStartTime = Date.now();
     isFirstClick = true;
+    resetItemUses();
 
     cells = generateSolvableBoard();
     roundActive = true;
@@ -1238,14 +1385,9 @@
 
     const clearedFast = (Date.now() - floorStartTime) < 60000;
     let dropAmount = 25;
-    if (clearedFast && (myItems.meltdownReactor || 0) > 0) {
+    if (clearedFast && hasUsesLeft("meltdownReactor")) {
       dropAmount = Math.round(dropAmount * 1.5);
-      myItems.meltdownReactor -= 1;
-      runTransaction(ref(db, "players/current/" + playerId), (current) => {
-        if (!current || !current.items || !current.items.meltdownReactor) return current;
-        current.items.meltdownReactor -= 1;
-        return current;
-      });
+      consumeUse("meltdownReactor");
     }
 
     const clearedUnder90 = (Date.now() - floorStartTime) < 90000;
@@ -1277,6 +1419,7 @@
     goldenMineIdx = null;
     midasUsedThisRound = false;
     sonarArmed = false;
+    resetItemUses();
 
     cells = generateSolvableBoard();
     document.getElementById("radioactiveFloor").textContent = currentFloor;
@@ -1313,7 +1456,7 @@
   }
 
   window.useMidasSpark = function () {
-    if (!roundActive || (myItems.midasSpark || 0) <= 0 || midasUsedThisRound) return;
+    if (!roundActive || !hasUsesLeft("midasSpark") || midasUsedThisRound) return;
 
     const hiddenMines = cells
       .map((c, i) => (c.mine && !c.revealed && !c.flagged ? i : null))
@@ -1323,39 +1466,24 @@
     goldenMineIdx = hiddenMines[Math.floor(Math.random() * hiddenMines.length)];
     midasUsedThisRound = true;
     renderBoard();
-
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.midasSpark) return current;
-      current.items.midasSpark -= 1;
-      return current;
-    });
+    consumeUse("midasSpark");
   };
 
   window.useOracle = function () {
-    if (!roundActive || (myItems.oracle || 0) <= 0 || oracleHighlightIdx !== null) return;
+    if (!roundActive || !hasUsesLeft("oracle") || oracleHighlightIdx !== null) return;
     const safeHidden = cells
       .map((c, i) => (!c.mine && !c.revealed ? i : null))
       .filter((i) => i !== null);
     if (safeHidden.length === 0) return;
     oracleHighlightIdx = safeHidden[Math.floor(Math.random() * safeHidden.length)];
     renderBoard();
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.oracle) return current;
-      current.items.oracle -= 1;
-      return current;
-    });
+    consumeUse("oracle");
   };
 
-
-
   window.armSonar = function () {
-    if (!roundActive || (myItems.sonar || 0) <= 0 || sonarArmed) return;
+    if (!roundActive || !hasUsesLeft("sonar") || sonarArmed) return;
     sonarArmed = true;
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.sonar) return current;
-      current.items.sonar -= 1;
-      return current;
-    });
+    consumeUse("sonar");
   };
 
   function fireSonar(row, col) {
@@ -1375,13 +1503,9 @@
   }
 
   window.useSmokeBomb = function () {
-    if (!roundActive || (myItems.smokeBomb || 0) <= 0 || smokeArmed) return;
+    if (!roundActive || !hasUsesLeft("smokeBomb") || smokeArmed) return;
     smokeArmed = true;
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.smokeBomb) return current;
-      current.items.smokeBomb -= 1;
-      return current;
-    });
+    consumeUse("smokeBomb");
   };
 
   function recomputeAdjacents() {
@@ -1498,7 +1622,7 @@
   };
 
   window.useMineBolt = function () {
-    if (!roundActive || (myItems.mineBolt || 0) <= 0) return;
+    if (!roundActive || !hasUsesLeft("mineBolt")) return;
     const hiddenMines = cells
       .map((c, i) => (c.mine && !c.revealed && !c.flagged ? i : null))
       .filter((i) => i !== null);
@@ -1509,21 +1633,12 @@
     cells[idx].drillLocked = true;
     updateProgressDisplay();
     renderBoard();
-
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.mineBolt) return current;
-      current.items.mineBolt -= 1;
-      return current;
-    });
+    consumeUse("mineBolt");
   };
 
   window.useHazardLift = function () {
-    if (!roundActive || !radioactiveActive || (myItems.hazardLift || 0) <= 0) return;
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.hazardLift) return current;
-      current.items.hazardLift -= 1;
-      return current;
-    });
+    if (!roundActive || !radioactiveActive || !hasUsesLeft("hazardLift")) return;
+    consumeUse("hazardLift");
 
     if (Math.random() < 0.4) {
       advanceFloor();
@@ -1617,7 +1732,6 @@
     smokeArmed = false;
     midasUsedThisRound = false;
     goldenMineIdx = null;
-    armorChargeLeft = 0;
     voidArmed = false;
     supernovaBonusActive = false;
     floorMineralMultiplier = 1;
@@ -1625,6 +1739,7 @@
     titanConsumedThisRound = false;
     titanRevivedThisRound = false;
     isFirstClick = true;
+    resetItemUses();
 
     document.getElementById("roundIntro").style.display = "none";    document.getElementById("roundArea").style.display = "block";
     document.getElementById("result").textContent = "";
@@ -1673,36 +1788,17 @@
 
     updateProgressDisplay();
 
-    if (hitMine && (myItems.shield || 0) > 0) {
-      myItems.shield -= 1;
-      runTransaction(ref(db, "players/current/" + playerId), (current) => {
-        if (!current || !current.items || !current.items.shield) return current;
-        current.items.shield -= 1;
-        return current;
-      });
+    if (hitMine && hasUsesLeft("shield")) {
+      consumeUse("shield");
       hitMine = false;
-    } else if (hitMine && (myItems.angelRevive || 0) > 0) {
-      myItems.angelRevive -= 1;
+    } else if (hitMine && hasUsesLeft("angelRevive")) {
+      consumeUse("angelRevive");
       timePenaltySeconds += 5;
-      runTransaction(ref(db, "players/current/" + playerId), (current) => {
-        if (!current || !current.items || !current.items.angelRevive) return current;
-        current.items.angelRevive -= 1;
-        return current;
-      });
       hitMine = false;
-    } else if (hitMine && wasFirstClick && ((myItems.heavyArmor || 0) > 0 || (myItems.titanForgeExosuit || 0) > 0)) {
+    } else if (hitMine && wasFirstClick && (myItems.heavyArmor || (myItems.titanForgeExosuit || 0) > 0)) {
       hitMine = false;
-    } else if (hitMine && armorChargeLeft > 0) {
-      armorChargeLeft -= 1;
-      hitMine = false;
-    } else if (hitMine && (myItems.heavyArmor || 0) > 0) {
-      myItems.heavyArmor -= 1;
-      armorChargeLeft = 1;
-      runTransaction(ref(db, "players/current/" + playerId), (current) => {
-        if (!current || !current.items || !current.items.heavyArmor) return current;
-        current.items.heavyArmor -= 1;
-        return current;
-      });
+    } else if (hitMine && hasUsesLeft("heavyArmor")) {
+      consumeUse("heavyArmor");
       hitMine = false;
     } else if (hitMine && titanChargesLeft > 0) {
       titanChargesLeft -= 1;
@@ -1749,14 +1845,12 @@
     const elapsedSeconds = Math.max(0, Math.floor((Date.now() - roundStartTime) / 1000) + timeAdjust);
     const timeLabel = formatTime(elapsedSeconds);
 
-    if (won && elapsedSeconds < 35 && (myItems.adrenaline || 0) > 0) {
+    if (won && elapsedSeconds < 35 && hasUsesLeft("adrenaline")) {
       finalScore = Math.round(finalScore * 1.5);
-      myItems.adrenaline -= 1;
-      runTransaction(ref(db, "players/current/" + playerId), (current) => {
-        if (!current || !current.items || !current.items.adrenaline) return current;
-        current.items.adrenaline -= 1;
-        return current;
-      });
+      consumeUse("adrenaline");
+    }
+    if (hasUsesLeft("timeFreeze")) {
+      consumeUse("timeFreeze");
     }
 
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
