@@ -1069,7 +1069,17 @@
     document.getElementById("phantomCount").textContent = myItems.phantomMidasRift || 0;
     document.getElementById("titanOwned").textContent = `Owned: ${myItems.titanForgeExosuit || 0}`;
     document.getElementById("titanStatus").textContent = `🔱 x${myItems.titanForgeExosuit || 0}`;
-    document.getElementById("tabFusionBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
+
+    const ownedIds = {
+      shield: "shieldOwned", timeFreeze: "timeFreezeOwned", angelRevive: "angelOwned",
+      adrenaline: "adrenalineOwned", oracle: "oracleOwned", sonar: "sonarOwned",
+      midasSpark: "midasOwned", smokeBomb: "smokeOwned", heavyArmor: "armorOwned",
+      mineBolt: "mineBoltOwned", hazardLift: "liftOwned", meltdownReactor: "reactorOwned"
+    };
+    for (const key in ownedIds) {
+      const el = document.getElementById(ownedIds[key]);
+      if (el) el.textContent = myItems[key] ? "Owned ✅" : "Not owned";
+    }    document.getElementById("tabFusionBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
     document.getElementById("radioactiveBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
         document.getElementById("tabCustomizeBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
     document.getElementById("tabSmelterBtn").style.display = (me.score || 0) >= RADIOACTIVE_UNLOCK_SCORE ? "inline-block" : "none";
@@ -1229,7 +1239,6 @@
     smokeArmed = false;
     midasUsedThisRound = false;
     goldenMineIdx = null;
-         armorChargeLeft = 0;
     voidArmed = false;
     supernovaBonusActive = false;
     floorMineralMultiplier = 1;
