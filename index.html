@@ -576,7 +576,7 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  const playersRef = ref(db, "players/current");
+  const currentPlayerRef = ref(db, "players/current/" + playerId);
 
   let playerId = localStorage.getItem("ms_id");
   if (!playerId) {
@@ -699,8 +699,9 @@
     gold:        { emoji: "🟨", color: "#FFD700" },
     platinum:    { emoji: "🟦", color: "#00FFFF" },
     chlorophyte: { emoji: "🟩", color: "#39FF14" },
-    hallowed:    { emoji: "🟪", color: "#A855F7" }
+    hallowed:    { emoji: "🟪", color: "#D8BFD8" }
   };
+
 
   function mineralOddsForFloor(floor) {
     if (floor <= 5) return { copper: 0.75, silver: 0.25 };
