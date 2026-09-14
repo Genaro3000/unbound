@@ -728,20 +728,27 @@
 
   let myMinerals = { copper: 0, silver: 0, gold: 0, platinum: 0, chlorophyte: 0, hallowed: 0 };
 
-  function renderMineralBar() {
-    document.getElementById("mCopper").textContent = myMinerals.copper || 0;
-    document.getElementById("mSilver").textContent = myMinerals.silver || 0;
-    document.getElementById("mGold").textContent = myMinerals.gold || 0;
-    document.getElementById("mPlatinum").textContent = myMinerals.platinum || 0;
-    document.getElementById("mChloro").textContent = myMinerals.chlorophyte || 0;
-    document.getElementById("mHallowed").textContent = myMinerals.hallowed || 0;
+function renderMineralBar() {
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
 
-    document.getElementById("smeltCopperOwned").textContent = `Have: ${myMinerals.copper || 0}`;
-    document.getElementById("smeltSilverOwned").textContent = `Have: ${myMinerals.silver || 0}`;
-    document.getElementById("smeltGoldOwned").textContent = `Have: ${myMinerals.gold || 0}`;
-    document.getElementById("smeltPlatinumOwned").textContent = `Have: ${myMinerals.platinum || 0}`;
-    document.getElementById("smeltChloroOwned").textContent = `Have: ${myMinerals.chlorophyte || 0}`;
-  }
+  // Inventory mineral counters
+  setText("bagCopper", myMinerals.copper || 0);
+  setText("bagSilver", myMinerals.silver || 0);
+  setText("bagGold", myMinerals.gold || 0);
+  setText("bagPlatinum", myMinerals.platinum || 0);
+  setText("bagChloro", myMinerals.chlorophyte || 0);
+  setText("bagHallowed", myMinerals.hallowed || 0);
+
+  // Smelter counters
+  setText("smeltCopperOwned", `Have: ${myMinerals.copper || 0}`);
+  setText("smeltSilverOwned", `Have: ${myMinerals.silver || 0}`);
+  setText("smeltGoldOwned", `Have: ${myMinerals.gold || 0}`);
+  setText("smeltPlatinumOwned", `Have: ${myMinerals.platinum || 0}`);
+  setText("smeltChloroOwned", `Have: ${myMinerals.chlorophyte || 0}`);
+}
 
   // --- Ronda individual ---
   let cells = [];
