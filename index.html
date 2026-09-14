@@ -507,7 +507,7 @@
     <div id="modeSelect">
       <button id="shopBtn" class="mode-btn" onclick="toggleShop()">Shop 🛒</button>
       <button id="modeExpertBtn" class="mode-btn" onclick="toggleExpertMode()">Classic Mode 💣</button>
-      <button id="radioactiveBtn" class="mode-btn" style="display:none" onclick="toggleRadioactiveSelect()">☢️ Rad-Mines</button>
+      <button id="radioactiveBtn" class="mode-btn" style="display:inline-block" onclick="toggleRadioactiveSelect()">☢️ Rad-Mines</button>
     </div>
     <button id="playAgainBtn">START ROUND</button>
   </div>
@@ -576,13 +576,15 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  const currentPlayerRef = ref(db, "players/current/" + playerId);
 
   let playerId = localStorage.getItem("ms_id");
   if (!playerId) {
     playerId = crypto.randomUUID();
     localStorage.setItem("ms_id", playerId);
   }
+
+  const currentPlayerRef = ref(db, "players/current/" + playerId);
+  const playersRef = ref(db, "players/current");
 
   const params = new URLSearchParams(location.search);
   if (params.get("admin") === ADMIN_CODE) {
