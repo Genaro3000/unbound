@@ -577,12 +577,14 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
+  // 1. Primero se lee/crea el ID del jugador
   let playerId = localStorage.getItem("ms_id");
   if (!playerId) {
     playerId = crypto.randomUUID();
     localStorage.setItem("ms_id", playerId);
   }
 
+  // 2. Después se usan las referencias
   const currentPlayerRef = ref(db, "players/current/" + playerId);
   const playersRef = ref(db, "players/current");
 
