@@ -1062,13 +1062,9 @@
     renderMineralBar();
     document.getElementById("coinsDisplay").textContent = `${myCoins} Coins`;
     document.getElementById("voidOwned").textContent = `Owned: ${myItems.voidExecutioner || 0}`;
-    document.getElementById("voidCount").textContent = myItems.voidExecutioner || 0;
     document.getElementById("supernovaOwned").textContent = `Owned: ${myItems.supernovaCore || 0}`;
-    document.getElementById("supernovaCount").textContent = myItems.supernovaCore || 0;
     document.getElementById("phantomOwned").textContent = `Owned: ${myItems.phantomMidasRift || 0}`;
-    document.getElementById("phantomCount").textContent = myItems.phantomMidasRift || 0;
     document.getElementById("titanOwned").textContent = `Owned: ${myItems.titanForgeExosuit || 0}`;
-    document.getElementById("titanStatus").textContent = `🔱 x${myItems.titanForgeExosuit || 0}`;
 
     const ownedIds = {
       shield: "shieldOwned", timeFreeze: "timeFreezeOwned", angelRevive: "angelOwned",
