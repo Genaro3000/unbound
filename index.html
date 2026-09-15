@@ -683,6 +683,25 @@
     return out;
   }
 
+  const BORDER_COLORS = { top: "#ef4444", bottom: "#3b82f6", left: "#22c55e", right: "#f59e0b" };
+
+  function wrapDirectionFor(r, c) {
+    if (!toroidalMode) return null;
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (!dr && !dc) continue;
+        const rawR = r + dr, rawC = c + dc;
+        const wrappedR = rawR < 0 || rawR >= ROWS;
+        const wrappedC = rawC < 0 || rawC >= COLS;
+        if (wrappedR && dr < 0) return "top";
+        if (wrappedR && dr > 0) return "bottom";
+        if (wrappedC && dc < 0) return "left";
+        if (wrappedC && dc > 0) return "right";
+      }
+    }
+    return null;
+  }
+
   function pickWeightedMineIndices(count) {
     const weights = [];
     const cx = (ROWS - 1) / 2, cy = (COLS - 1) / 2;
@@ -928,7 +947,14 @@ function renderMineralBar() {
   let flagMode = false;
   const MINE_FLAG_POINTS = 0; // ya no se dan puntos por marcar minas
     const CLEAR_BOARD_BONUS = 100; // puntos fijos por completar el tablero entero
-        const RADIOACTIVE_UNLOCK_SCORE = 1; // 👈 puntaje total necesario para desbloquear el modo
+          const RADIOACTIVE_UNLOCK_SCORE = 1; // 👈 puntaje total necesario para desbloquear el modo
+
+  let borderDebugMode = false;
+  window.toggleDebugMode = function () {
+    borderDebugMode = !borderDebugMode;
+    document.getElementById("debugToggleBtn").classList.toggle("mode-active", borderDebugMode);
+    renderBoard();
+  };
 
   const ITEM_USES_PER_ROUND = {
     oracle: 1, timeFreeze: 1, midasSpark: 1, adrenaline: 1,
@@ -1830,6 +1856,10 @@ function renderMineralBar() {
                if (cell.revealed) {
           btn.textContent = cell.mine ? "💥" : (cell.adjacent || "");
           if (cell.veinColor) btn.style.boxShadow = `inset 0 0 0 2px ${cell.veinColor}`;
+          if (borderDebugMode) {
+            const dir = wrapDirectionFor(r, c);
+            if (dir) btn.style.boxShadow = `inset 0 0 0 3px ${BORDER_COLORS[dir]}`;
+          }
         }
           else if (cell.flagged) btn.textContent = (r * COLS + c === goldenMineIdx) ? "⭐" : (radioactiveActive ? getStabSet().markEmoji : "🚩");
         btn.onclick = () => cellClick(r, c);
