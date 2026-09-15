@@ -1124,16 +1124,16 @@ function renderMineralBar() {
     myMinerals = me.minerals || { copper: 0, silver: 0, gold: 0, platinum: 0, chlorophyte: 0, hallowed: 0 };
     renderMineralBar();
     document.getElementById("coinsDisplay").textContent = `${myCoins} Coins`;
-    document.getElementById("voidOwned").textContent = `Owned: ${myItems.voidExecutioner || 0}`;
-    document.getElementById("supernovaOwned").textContent = `Owned: ${myItems.supernovaCore || 0}`;
-    document.getElementById("phantomOwned").textContent = `Owned: ${myItems.phantomMidasRift || 0}`;
-    document.getElementById("titanOwned").textContent = `Owned: ${myItems.titanForgeExosuit || 0}`;
 
     const ownedIds = {
       shield: "shieldOwned", timeFreeze: "timeFreezeOwned", angelRevive: "angelOwned",
       adrenaline: "adrenalineOwned", oracle: "oracleOwned", sonar: "sonarOwned",
       midasSpark: "midasOwned", smokeBomb: "smokeOwned", heavyArmor: "armorOwned",
-      mineBolt: "mineBoltOwned", hazardLift: "liftOwned", meltdownReactor: "reactorOwned"
+      mineBolt: "mineBoltOwned", hazardLift: "liftOwned", meltdownReactor: "reactorOwned",
+      voidExecutioner: "voidOwned", 
+      supernovaCore: "supernovaOwned", 
+      phantomMidasRift: "phantomOwned", 
+      titanForgeExosuit: "titanOwned"
     };
     for (const key in ownedIds) {
       const el = document.getElementById(ownedIds[key]);
