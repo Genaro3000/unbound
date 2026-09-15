@@ -106,7 +106,8 @@
   }
   #adminPanel b { color: var(--text); font-family: var(--font-display); }
 
-    #leaderboardBtn, #flagModeBtn { width: auto; padding: 8px 14px; font-size: 13px; }
+      #leaderboardBtn, #flagModeBtn, #adminPanelToggleBtn, #debugToggleBtn { width: auto; padding: 8px 14px; font-size: 13px; }
+  #topBtnRow { display: flex; gap: 8px; justify-content: center; }
   #roundControls { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
   #resetRoundBtn, #exitRoundBtn {
     padding: 8px 14px;
@@ -279,7 +280,11 @@
     <button onclick="adminJumpToFloor()">Jump to Floor</button>
   </div>
 
-  <button id="leaderboardBtn" onclick="toggleLeaderboard()">🏆 Show Leaderboard</button>
+    <div id="topBtnRow">
+    <button id="leaderboardBtn" onclick="toggleLeaderboard()">🏆 Show Leaderboard</button>
+    <button id="adminPanelToggleBtn" style="display:none" onclick="toggleAdminPanelVisibility()">👑</button>
+    <button id="debugToggleBtn" style="display:none" onclick="toggleDebugMode()">🎨</button>
+  </div>
 
   <div id="leaderboard">
     <h3>TOP 10</h3>
@@ -589,9 +594,16 @@
   const playersRef = ref(db, "players/current");
 
   const params = new URLSearchParams(location.search);
-  if (params.get("admin") === ADMIN_CODE) {
-    document.getElementById("adminPanel").style.display = "block";
+  const isAdminEarly = params.get("admin") === ADMIN_CODE;
+  let adminPanelVisible = false;
+  if (isAdminEarly) {
+    document.getElementById("adminPanelToggleBtn").style.display = "inline-block";
+    document.getElementById("debugToggleBtn").style.display = "inline-block";
   }
+  window.toggleAdminPanelVisibility = function () {
+    adminPanelVisible = !adminPanelVisible;
+    document.getElementById("adminPanel").style.display = adminPanelVisible ? "block" : "none";
+  };
 
   window.joinGame = function () {
     const name = document.getElementById("nameInput").value.trim();
