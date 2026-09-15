@@ -201,7 +201,8 @@
     padding: 6px 12px; border-radius: 8px; border: none; background: #ffffff; color: #000000;
     font-weight: 700; font-size: 12px; cursor: pointer;
   }
-  .bag-item button:disabled { opacity: 0.4; cursor: default; }
+    .bag-item button:disabled { opacity: 0.4; cursor: default; }
+  .smelt-invert-btn { padding: 8px 10px !important; font-size: 14px !important; }
 
   #personalScore { font-family: var(--font-display); font-weight: 700; margin-bottom: 12px; }
 
@@ -452,23 +453,23 @@
         <p class="cust-intro">Refine raw ore into rarer materials.</p>
         <div class="shop-item">
           <div class="shop-item-name">🟧 25 Copper → ⬜ 5 Silver</div>
-          <div class="shop-item-row"><span id="smeltCopperOwned">Have: 0</span><button onclick="smelt('copper','silver')">Smelt</button></div>
+          <div class="shop-item-row"><span id="smeltCopperOwned">Have: 0</span><button onclick="smelt('copper','silver', false)">Smelt</button><button class="smelt-invert-btn" onclick="smelt('copper','silver', true)" title="Invert: 5 Silver → 25 Copper">🔄️</button></div>
         </div>
         <div class="shop-item">
           <div class="shop-item-name">⬜ 25 Silver → 🟨 5 Gold</div>
-          <div class="shop-item-row"><span id="smeltSilverOwned">Have: 0</span><button onclick="smelt('silver','gold')">Smelt</button></div>
+          <div class="shop-item-row"><span id="smeltSilverOwned">Have: 0</span><button onclick="smelt('silver','gold', false)">Smelt</button><button class="smelt-invert-btn" onclick="smelt('silver','gold', true)" title="Invert: 5 Gold → 25 Silver">🔄️</button></div>
         </div>
         <div class="shop-item">
           <div class="shop-item-name">🟨 25 Gold → 🟦 5 Platinum</div>
-          <div class="shop-item-row"><span id="smeltGoldOwned">Have: 0</span><button onclick="smelt('gold','platinum')">Smelt</button></div>
+          <div class="shop-item-row"><span id="smeltGoldOwned">Have: 0</span><button onclick="smelt('gold','platinum', false)">Smelt</button><button class="smelt-invert-btn" onclick="smelt('gold','platinum', true)" title="Invert: 5 Platinum → 25 Gold">🔄️</button></div>
         </div>
         <div class="shop-item">
           <div class="shop-item-name">🟦 25 Platinum → 🟩 5 Chlorophyte</div>
-          <div class="shop-item-row"><span id="smeltPlatinumOwned">Have: 0</span><button onclick="smelt('platinum','chlorophyte')">Smelt</button></div>
+          <div class="shop-item-row"><span id="smeltPlatinumOwned">Have: 0</span><button onclick="smelt('platinum','chlorophyte', false)">Smelt</button><button class="smelt-invert-btn" onclick="smelt('platinum','chlorophyte', true)" title="Invert: 5 Chlorophyte → 25 Platinum">🔄️</button></div>
         </div>
         <div class="shop-item">
           <div class="shop-item-name">🟩 25 Chlorophyte → 🟪 5 Hallowed Metal</div>
-          <div class="shop-item-row"><span id="smeltChloroOwned">Have: 0</span><button onclick="smelt('chlorophyte','hallowed')">Smelt</button></div>
+          <div class="shop-item-row"><span id="smeltChloroOwned">Have: 0</span><button onclick="smelt('chlorophyte','hallowed', false)">Smelt</button><button class="smelt-invert-btn" onclick="smelt('chlorophyte','hallowed', true)" title="Invert: 5 Hallowed → 25 Chlorophyte">🔄️</button></div>
         </div>
       </div>
 
@@ -1191,15 +1192,20 @@ function renderMineralBar() {
   const SMELT_COST = 25;
   const SMELT_GAIN = 5;
 
-  window.smelt = function (fromTier, toTier) {
+  window.smelt = function (fromTier, toTier, reverse) {
+    const costTier = reverse ? toTier : fromTier;
+    const costAmount = reverse ? SMELT_GAIN : SMELT_COST;
+    const gainTier = reverse ? fromTier : toTier;
+    const gainAmount = reverse ? SMELT_COST : SMELT_GAIN;
+
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
       if (!current) return current;
       current.minerals = current.minerals || {};
       if (!isAdmin) {
-        if ((current.minerals[fromTier] || 0) < SMELT_COST) return current;
-        current.minerals[fromTier] -= SMELT_COST;
+        if ((current.minerals[costTier] || 0) < costAmount) return current;
+        current.minerals[costTier] -= costAmount;
       }
-      current.minerals[toTier] = (current.minerals[toTier] || 0) + SMELT_GAIN;
+      current.minerals[gainTier] = (current.minerals[gainTier] || 0) + gainAmount;
       return current;
     });
   };
