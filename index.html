@@ -192,7 +192,8 @@
   #bagBox h3 { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-display); margin: 0 0 14px; }
   #bagBox h4 { font-family: var(--font-display); font-size: 12px; color: var(--muted); margin: 16px 0 6px; }
   #closeBagBtn { background: none; border: none; color: var(--text); font-size: 16px; cursor: pointer; }
-  #bagMinerals { display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+    #bagMinerals { display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+  #bagTabs { display: flex; gap: 8px; margin: 12px 0 6px; }
   .bag-item { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--panel-border); padding: 10px 0; font-size: 13px; }
   .bag-item-name { display: flex; align-items: center; gap: 8px; }
   .bag-empty { color: var(--muted); font-size: 12px; padding: 8px 0; }
@@ -543,10 +544,12 @@
           <span>🟩 x<span id="bagChloro">0</span></span>
           <span>🟪 x<span id="bagHallowed">0</span></span>
         </div>
-        <h4>Active</h4>
+        <div id="bagTabs">
+          <button id="bagTabActiveBtn" class="shop-tab tab-active" onclick="switchBagTab('active')">Active</button>
+          <button id="bagTabPassiveBtn" class="shop-tab" onclick="switchBagTab('passive')">Passive</button>
+        </div>
         <div id="bagActiveList"></div>
-        <h4>Passive</h4>
-        <div id="bagPassiveList"></div>
+        <div id="bagPassiveList" style="display:none"></div>
       </div>
     </div>
 
@@ -956,7 +959,8 @@ function renderMineralBar() {
     sonar: 2, smokeBomb: 2,
     shield: 1, angelRevive: 1,
     hazardLift: 1, meltdownReactor: 1,
-    mineBolt: 2, heavyArmor: 1
+    mineBolt: 2, heavyArmor: 1,
+    voidExecutioner: 1, supernovaCore: 1, phantomMidasRift: 1, titanForgeExosuit: 1
   };
   let itemUsesLeft = {};
 
@@ -984,7 +988,9 @@ function renderMineralBar() {
     { key: "sonar", emoji: "🎯", name: "Sonar Pulse", useFn: "armSonar" },
     { key: "smokeBomb", emoji: "💨", name: "Smoke Bomb", useFn: "useSmokeBomb" },
     { key: "hazardLift", emoji: "🎲", name: "Hazard Lift", useFn: "useHazardLift" },
-    { key: "mineBolt", emoji: "🔩", name: "Mine Bolt", useFn: "useMineBolt" }
+    { key: "mineBolt", emoji: "🔩", name: "Mine Bolt", useFn: "useMineBolt" },
+    { key: "voidExecutioner", emoji: "📡", name: "Hyper Lock-on Engine", useFn: "useVoidExecutioner" },
+    { key: "phantomMidasRift", emoji: "👑", name: "Phantom Midas-Rift", useFn: "usePhantomMidasRift" }
   ];
   const PASSIVE_ITEMS = [
     { key: "timeFreeze", emoji: "❄️", name: "Time Freeze" },
@@ -992,8 +998,16 @@ function renderMineralBar() {
     { key: "shield", emoji: "🛡️", name: "Shield" },
     { key: "angelRevive", emoji: "🪽", name: "Angelic Revive" },
     { key: "meltdownReactor", emoji: "☢️", name: "Meltdown Reactor" },
-    { key: "heavyArmor", emoji: "🪖", name: "Heavy Armor" }
+    { key: "heavyArmor", emoji: "🪖", name: "Heavy Armor" },
+    { key: "titanForgeExosuit", emoji: "🔱", name: "Titan-Forge Exosuit" },
+    { key: "supernovaCore", emoji: "⚡", name: "Supernova Stasis-Core", useFn: "useSupernovaCore" }
   ];
+  window.switchBagTab = function (tab) {
+    document.getElementById("bagActiveList").style.display = tab === "active" ? "block" : "none";
+    document.getElementById("bagPassiveList").style.display = tab === "passive" ? "block" : "none";
+    document.getElementById("bagTabActiveBtn").classList.toggle("tab-active", tab === "active");
+    document.getElementById("bagTabPassiveBtn").classList.toggle("tab-active", tab === "passive");
+  };
 
   let bagOpen = false;
   window.toggleBag = function () {
@@ -1030,7 +1044,10 @@ function renderMineralBar() {
       const left = itemUsesLeft[it.key] !== undefined ? itemUsesLeft[it.key] : ITEM_USES_PER_ROUND[it.key];
       const row = document.createElement("div");
       row.className = "bag-item";
-      row.innerHTML = `<span class="bag-item-name">${it.emoji} ${it.name}</span><span>Owned — ${left > 0 ? "Ready" : "Used"}</span>`;
+      const statusHtml = it.useFn
+        ? `<button ${left <= 0 ? "disabled" : ""} onclick="${it.useFn}()">Use (${left})</button>`
+        : `<span>Owned — ${left > 0 ? "Ready" : "Used"}</span>`;
+      row.innerHTML = `<span class="bag-item-name">${it.emoji} ${it.name}</span>${statusHtml}`;
       passiveList.appendChild(row);
     });
   }
@@ -1200,14 +1217,15 @@ function renderMineralBar() {
       if (!current) return current;
       const items = current.items || {};
       const minerals = current.minerals || {};
+      if (items[key]) return current; // ya lo tenes, es permanente
       if (!isAdmin) {
-        for (const k in recipe.items) if ((items[k] || 0) < recipe.items[k]) return current;
+        for (const k in recipe.items) if (!items[k]) return current;
         for (const k in recipe.minerals) if ((minerals[k] || 0) < recipe.minerals[k]) return current;
-        for (const k in recipe.items) items[k] -= recipe.items[k];
+        for (const k in recipe.items) items[k] = false;
         for (const k in recipe.minerals) minerals[k] -= recipe.minerals[k];
       }
       current.items = items;
-      current.items[key] = (current.items[key] || 0) + 1;
+      current.items[key] = true;
       current.minerals = minerals;
       return current;
     });
@@ -1509,15 +1527,10 @@ function renderMineralBar() {
   }
 
   window.useVoidExecutioner = function () {
-    if (!roundActive || (myItems.voidExecutioner || 0) <= 0 || voidArmed) return;
+    if (!roundActive || !hasUsesLeft("voidExecutioner") || voidArmed) return;
     voidArmed = true;
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.voidExecutioner) return current;
-      current.items.voidExecutioner -= 1;
-      return current;
-    });
+    consumeUse("voidExecutioner");
   };
-
   function applyVoidExecutioner(row, col) {
     const zone = [];
     for (let dr = -2; dr <= 2; dr++) {
@@ -1558,23 +1571,15 @@ function renderMineralBar() {
   }
 
   window.useSupernovaCore = function () {
-    if (!roundActive || !radioactiveActive || (myItems.supernovaCore || 0) <= 0) return;
+    if (!roundActive || !radioactiveActive || !hasUsesLeft("supernovaCore")) return;
     floorStartTime += 10000;
     supernovaBonusActive = true;
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.supernovaCore) return current;
-      current.items.supernovaCore -= 1;
-      return current;
-    });
+    consumeUse("supernovaCore");
   };
 
   window.usePhantomMidasRift = function () {
-    if (!roundActive || !radioactiveActive || (myItems.phantomMidasRift || 0) <= 0) return;
-    runTransaction(ref(db, "players/current/" + playerId), (current) => {
-      if (!current || !current.items || !current.items.phantomMidasRift) return current;
-      current.items.phantomMidasRift -= 1;
-      return current;
-    });
+    if (!roundActive || !radioactiveActive || !hasUsesLeft("phantomMidasRift")) return;
+    consumeUse("phantomMidasRift");
 
     if (Math.random() < 0.35) {
       floorMineralMultiplier = 2;
@@ -1757,7 +1762,7 @@ function renderMineralBar() {
       consumeUse("angelRevive");
       timePenaltySeconds += 5;
       hitMine = false;
-    } else if (hitMine && wasFirstClick && (myItems.heavyArmor || (myItems.titanForgeExosuit || 0) > 0)) {
+    } else if (hitMine && wasFirstClick && (myItems.heavyArmor || myItems.titanForgeExosuit)) {
       hitMine = false;
     } else if (hitMine && hasUsesLeft("heavyArmor")) {
       consumeUse("heavyArmor");
@@ -1765,25 +1770,15 @@ function renderMineralBar() {
     } else if (hitMine && titanChargesLeft > 0) {
       titanChargesLeft -= 1;
       hitMine = false;
-    } else if (hitMine && !titanConsumedThisRound && (myItems.titanForgeExosuit || 0) > 0) {
-      myItems.titanForgeExosuit -= 1;
+    } else if (hitMine && !titanConsumedThisRound && myItems.titanForgeExosuit) {
       titanConsumedThisRound = true;
       titanChargesLeft = 2;
-      runTransaction(ref(db, "players/current/" + playerId), (current) => {
-        if (!current || !current.items || !current.items.titanForgeExosuit) return current;
-        current.items.titanForgeExosuit -= 1;
-        return current;
-      });
       hitMine = false;
     } else if (hitMine && titanConsumedThisRound && !titanRevivedThisRound) {
       titanRevivedThisRound = true;
-      myItems.shield = (myItems.shield || 0) + 1;
-      runTransaction(ref(db, "players/current/" + playerId), (current) => {
-        if (!current) return current;
-        current.items = current.items || {};
-        current.items.shield = (current.items.shield || 0) + 1;
-        return current;
-      });
+      myItems.shield = true;
+      itemUsesLeft.shield = 1;
+      updateUsesDisplay();
       hitMine = false;
     }
     renderBoard();
