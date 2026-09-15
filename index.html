@@ -1656,7 +1656,6 @@ function renderMineralBar() {
       return;
     }
     roundActive = false;
-    document.getElementById("roundIntroText").querySelector("span").textContent = "Ready for another round?";
     document.getElementById("roundIntro").style.display = "block";
     document.getElementById("roundArea").style.display = "none";
   };
@@ -1679,7 +1678,6 @@ function renderMineralBar() {
     toroidalMode = toroidalBeforeRadioactive;
     document.getElementById("modeExpertBtn").classList.toggle("mode-active", toroidalMode);
     document.getElementById("radioactiveFloorRow").style.display = "none";
-    document.getElementById("roundIntroText").querySelector("span").textContent = "Ready for another round?";
     document.getElementById("roundIntro").style.display = "block";
     document.getElementById("roundArea").style.display = "none";
   };
@@ -1832,7 +1830,6 @@ function renderMineralBar() {
       ? `YOU CLEARED THE BOARD! +${finalScore} points — Time: ${timeLabel}`
       : `BOOM! You scored ${finalScore} points before hitting a mine. Time: ${timeLabel}`;
 
-    document.getElementById("roundIntroText").querySelector("span").textContent = "Ready for another round?";
     document.getElementById("roundIntro").style.display = "block";
     document.getElementById("roundArea").style.display = "none";
   }
