@@ -45,12 +45,7 @@
     margin: 0 0 6px;
   }
 
-  #roundIntroText {
-    color: #ffffff;
-    font-size: 14px;
-    font-style: italic;
-    margin-bottom: 14px;
-  }
+
   #roundIntroText span {
     font-weight: 400;
     font-style: italic;
@@ -508,7 +503,7 @@
   </div>
 
   <div id="roundIntro">
-    <p id="roundIntroText"><span>⚠️ Border Alert: Left connects to right, top connects to bottom.</span></p>
+    <p id="roundIntroText"><span></span></p>
     <div id="modeSelect">
       <button id="shopBtn" class="mode-btn" onclick="toggleShop()">Shop 🛒</button>
       <button id="modeExpertBtn" class="mode-btn" onclick="toggleExpertMode()">Classic Mode 💣</button>
@@ -1418,7 +1413,6 @@ function renderMineralBar() {
     result.textContent = `☢️ RUN OVER! Reached Floor ${reachedFloor} — +${finalScore} points`;
 
     document.getElementById("radioactiveFloorRow").style.display = "none";
-    document.getElementById("roundIntroText").querySelector("span").textContent = "Ready for another round?";
     document.getElementById("roundIntro").style.display = "block";
     document.getElementById("roundArea").style.display = "none";
     radioactiveSelected = false;
