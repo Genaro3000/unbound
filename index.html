@@ -390,7 +390,7 @@
 
       <div class="shop-item">
         <div class="shop-item-name">☢️ Meltdown Reactor</div>
-        <div class="shop-item-desc">Clear a floor in under 60s for x1.5 minerals from that drop.</div>
+        <div class="shop-item-desc">Clear a floor in under 60s for x2.0 minerals from that drop.</div>
         <div class="shop-item-row">
           <span id="reactorOwned">Owned: 0</span>
           <button onclick="buyItem('meltdownReactor')">Buy - 350 Coins</button>
@@ -513,7 +513,7 @@
   <div id="roundIntro">
     <p id="roundIntroText"><span></span></p>
     <div id="modeSelect">
-      <button id="shopBtn" class="mode-btn" onclick="toggleShop()">Shop 🛒</button>
+      <button id="shopBtn" class="mode-btn" onclick="toggleShop()">🛒 Shop</button>
       <button id="modeExpertBtn" class="mode-btn" onclick="toggleExpertMode()">💣 Classic Mode</button>
       <button id="radioactiveBtn" class="mode-btn" style="display:inline-block" onclick="toggleRadioactiveSelect()">☢️ Rad-Mines</button>
     </div>
@@ -1418,7 +1418,7 @@ function renderMineralBar() {
     const clearedFast = (Date.now() - floorStartTime) < 60000;
     let dropAmount = 25;
     if (clearedFast && hasUsesLeft("meltdownReactor")) {
-      dropAmount = Math.round(dropAmount * 1.5);
+      dropAmount = Math.round(dropAmount * 2.0);
       consumeUse("meltdownReactor");
     }
 
@@ -1858,7 +1858,7 @@ function renderMineralBar() {
     const elapsedSeconds = Math.max(0, Math.floor((Date.now() - roundStartTime) / 1000) + timeAdjust);
     const timeLabel = formatTime(elapsedSeconds);
 
-    if (won && elapsedSeconds < 35 && hasUsesLeft("adrenaline")) {
+    if (won && elapsedSeconds < 60 && hasUsesLeft("adrenaline")) {
       finalScore = Math.round(finalScore * 1.5);
       consumeUse("adrenaline");
     }
