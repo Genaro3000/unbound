@@ -202,7 +202,8 @@
     font-weight: 700; font-size: 12px; cursor: pointer;
   }
     .bag-item button:disabled { opacity: 0.4; cursor: default; }
-  .smelt-invert-btn { padding: 8px 10px !important; font-size: 14px !important; }
+    #smelterDirectionRow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13px; color: var(--muted); }
+  #smelterDirectionRow button { padding: 8px 10px; border-radius: 8px; border: none; background: #ffffff; color: #000000; cursor: pointer; font-size: 14px; }
 
   #personalScore { font-family: var(--font-display); font-weight: 700; margin-bottom: 12px; }
 
@@ -451,25 +452,29 @@
 
       <div id="shopTabSmelter" style="display:none">
         <p class="cust-intro">Refine raw ore into rarer materials.</p>
-        <div class="shop-item">
-          <div class="shop-item-name">🟧 25 Copper → ⬜ 5 Silver</div>
-          <div class="shop-item-row"><span id="smeltCopperOwned">Have: 0</span><button onclick="smelt('copper','silver', false)">Smelt</button><button class="smelt-invert-btn" onclick="smelt('copper','silver', true)" title="Invert: 5 Silver → 25 Copper">🔄️</button></div>
+        <div id="smelterDirectionRow">
+          <span id="smelterDirectionLabel">Upgrading ⬆️</span>
+          <button onclick="toggleSmeltDirection()">🔄️</button>
         </div>
         <div class="shop-item">
-          <div class="shop-item-name">⬜ 25 Silver → 🟨 5 Gold</div>
-          <div class="shop-item-row"><span id="smeltSilverOwned">Have: 0</span><button onclick="smelt('silver','gold', false)">Smelt</button><button class="smelt-invert-btn" onclick="smelt('silver','gold', true)" title="Invert: 5 Gold → 25 Silver">🔄️</button></div>
+          <div class="shop-item-name" id="smeltRow0Name">🟧 25 Copper → ⬜ 5 Silver</div>
+          <div class="shop-item-row"><span id="smeltCopperOwned">Have: 0</span><button id="smeltRow0Btn" onclick="smeltRow(0)">Smelt</button></div>
         </div>
         <div class="shop-item">
-          <div class="shop-item-name">🟨 25 Gold → 🟦 5 Platinum</div>
-          <div class="shop-item-row"><span id="smeltGoldOwned">Have: 0</span><button onclick="smelt('gold','platinum', false)">Smelt</button><button class="smelt-invert-btn" onclick="smelt('gold','platinum', true)" title="Invert: 5 Platinum → 25 Gold">🔄️</button></div>
+          <div class="shop-item-name" id="smeltRow1Name">⬜ 25 Silver → 🟨 5 Gold</div>
+          <div class="shop-item-row"><span id="smeltSilverOwned">Have: 0</span><button id="smeltRow1Btn" onclick="smeltRow(1)">Smelt</button></div>
         </div>
         <div class="shop-item">
-          <div class="shop-item-name">🟦 25 Platinum → 🟩 5 Chlorophyte</div>
-          <div class="shop-item-row"><span id="smeltPlatinumOwned">Have: 0</span><button onclick="smelt('platinum','chlorophyte', false)">Smelt</button><button class="smelt-invert-btn" onclick="smelt('platinum','chlorophyte', true)" title="Invert: 5 Chlorophyte → 25 Platinum">🔄️</button></div>
+          <div class="shop-item-name" id="smeltRow2Name">🟨 25 Gold → 🟦 5 Platinum</div>
+          <div class="shop-item-row"><span id="smeltGoldOwned">Have: 0</span><button id="smeltRow2Btn" onclick="smeltRow(2)">Smelt</button></div>
         </div>
         <div class="shop-item">
-          <div class="shop-item-name">🟩 25 Chlorophyte → 🟪 5 Hallowed Metal</div>
-          <div class="shop-item-row"><span id="smeltChloroOwned">Have: 0</span><button onclick="smelt('chlorophyte','hallowed', false)">Smelt</button><button class="smelt-invert-btn" onclick="smelt('chlorophyte','hallowed', true)" title="Invert: 5 Hallowed → 25 Chlorophyte">🔄️</button></div>
+          <div class="shop-item-name" id="smeltRow3Name">🟦 25 Platinum → 🟩 5 Chlorophyte</div>
+          <div class="shop-item-row"><span id="smeltPlatinumOwned">Have: 0</span><button id="smeltRow3Btn" onclick="smeltRow(3)">Smelt</button></div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-name" id="smeltRow4Name">🟩 25 Chlorophyte → 🟪 5 Hallowed Metal</div>
+          <div class="shop-item-row"><span id="smeltChloroOwned">Have: 0</span><button id="smeltRow4Btn" onclick="smeltRow(4)">Smelt</button></div>
         </div>
       </div>
 
@@ -518,10 +523,10 @@
         <div id="radioactiveFloorRow" style="display:none">Floor: <span id="radioactiveFloor">1</span></div>
     <div id="personalScore">💣 Mines Left: <span id="minesLeftVal">22</span>/<span id="minesTotalVal">22</span> • 📊 Progress: <span id="progressVal">0</span>%</div>
     <div id="roundControls">
-      <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
-      <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
       <button id="exitRoundBtn" onclick="exitRound()" title="Exit to Main Screen">🏠</button>
       <button id="bagBtn" onclick="toggleBag()">🎒</button>
+      <button id="resetRoundBtn" onclick="resetRound()" title="Reset Round">↻</button>
+      <button id="flagModeBtn" onclick="toggleFlagMode()">🚩 Switch to Flag</button>
     </div>
     <div id="boardWrap"><div id="board"></div></div>
   </div>
@@ -1191,6 +1196,41 @@ function renderMineralBar() {
 
   const SMELT_COST = 25;
   const SMELT_GAIN = 5;
+
+  const SMELT_ROWS = [
+    { from: "copper", to: "silver", fromEmoji: "🟧", toEmoji: "⬜" },
+    { from: "silver", to: "gold", fromEmoji: "⬜", toEmoji: "🟨" },
+    { from: "gold", to: "platinum", fromEmoji: "🟨", toEmoji: "🟦" },
+    { from: "platinum", to: "chlorophyte", fromEmoji: "🟦", toEmoji: "🟩" },
+    { from: "chlorophyte", to: "hallowed", fromEmoji: "🟩", toEmoji: "🟪" }
+  ];
+  let smeltReversed = false;
+
+  window.toggleSmeltDirection = function () {
+    smeltReversed = !smeltReversed;
+    document.getElementById("smelterDirectionLabel").textContent = smeltReversed ? "Downgrading ⬇️" : "Upgrading ⬆️";
+    renderSmelterRows();
+  };
+
+  function renderSmelterRows() {
+    SMELT_ROWS.forEach((row, i) => {
+      const nameEl = document.getElementById(`smeltRow${i}Name`);
+      if (smeltReversed) {
+        nameEl.textContent = `${row.toEmoji} ${SMELT_GAIN} ${capitalize(row.to)} → ${row.fromEmoji} ${SMELT_COST} ${capitalize(row.from)}`;
+      } else {
+        nameEl.textContent = `${row.fromEmoji} ${SMELT_COST} ${capitalize(row.from)} → ${row.toEmoji} ${SMELT_GAIN} ${capitalize(row.to)}`;
+      }
+    });
+  }
+
+  function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  window.smeltRow = function (i) {
+    const row = SMELT_ROWS[i];
+    smelt(row.from, row.to, smeltReversed);
+  };
 
   window.smelt = function (fromTier, toTier, reverse) {
     const costTier = reverse ? toTier : fromTier;
