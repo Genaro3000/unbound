@@ -232,7 +232,8 @@
   .cell:hover:not(:disabled) { background: var(--board-hover); }
   .cell:disabled { cursor: default; }
   .cell.revealed { background: var(--board-revealed); color: var(--text); }
-    .cell.flagged { background: #ffffff; }
+      .cell.flagged { background: #ffffff; }
+  .cell.golden-flagged { background: var(--board-revealed) !important; color: var(--text); }
      .cell.xray-flash { background: #ef4444 !important; color: #ffffff; }
   .cell.oracle-highlight { background: #22c55e !important; }
   .cell.sonar-safe { background: #22c55e !important; }
@@ -322,7 +323,7 @@
 
       <div class="shop-item">
         <div class="shop-item-name">✨ Midas Spark</div>
-        <div class="shop-item-desc">Turns one random mine golden. Flag it for 10 points instead of 2 — but that flag can't be removed.</div>
+        <div class="shop-item-desc">Turns one random mine golden. Flag it (permanently) to earn +50 bonus points if you clear the board.</div>
         <div class="shop-item-row">
           <span id="midasOwned">Owned: 0</span>
           <button onclick="buyItem('midasSpark')">Buy - 250 Coins</button>
@@ -1411,7 +1412,9 @@ function renderMineralBar() {
 
   function advanceFloor() {
     roundScore += CLEAR_BOARD_BONUS;
-
+    if (goldenMineIdx !== null && cells[goldenMineIdx].flagged) {
+      roundScore += 50;
+    }
     const clearedFast = (Date.now() - floorStartTime) < 60000;
     let dropAmount = 25;
     if (clearedFast && hasUsesLeft("meltdownReactor")) {
@@ -1844,6 +1847,9 @@ function renderMineralBar() {
   function endRound(won) {
     roundActive = false;
     let finalScore = won ? roundScore + CLEAR_BOARD_BONUS : roundScore;
+    if (won && goldenMineIdx !== null && cells[goldenMineIdx].flagged) {
+      finalScore += 50;
+    }
     let timeAdjust = -timeCreditSeconds + timePenaltySeconds;
     const elapsedSeconds = Math.max(0, Math.floor((Date.now() - roundStartTime) / 1000) + timeAdjust);
     const timeLabel = formatTime(elapsedSeconds);
@@ -1884,7 +1890,7 @@ function renderMineralBar() {
         const cell = cells[r * COLS + c];
         const btn = document.createElement("button");
         const idx2 = r * COLS + c;
-        btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "") + (cell.smokeSafe && !cell.revealed ? " smoke-safe" : "");        btn.disabled = cell.revealed || !roundActive;
+        btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "") + (cell.smokeSafe && !cell.revealed ? " smoke-safe" : "") + (idx2 === goldenMineIdx && cell.flagged ? " golden-flagged" : "");        btn.disabled = cell.revealed || !roundActive;
                if (cell.revealed) {
           btn.textContent = cell.mine ? "💥" : (cell.adjacent || "");
           if (cell.veinColor) btn.style.boxShadow = `inset 0 0 0 2px ${cell.veinColor}`;
