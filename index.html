@@ -306,7 +306,7 @@
         <div class="shop-item-desc">Reveals a random safe tile in green for the rest of the round.</div>
         <div class="shop-item-row">
           <span id="oracleOwned">Owned: 0</span>
-          <button onclick="buyItem('oracle')">Buy - 25 Coins</button>
+          <button onclick="buyItem('oracle')">Buy - 150 Coins</button>
         </div>
       </div>
 
@@ -315,7 +315,7 @@
         <div class="shop-item-desc">Shaves 5 seconds off your round time.</div>
         <div class="shop-item-row">
           <span id="timeFreezeOwned">Owned: 0</span>
-          <button onclick="buyItem('timeFreeze')">Buy - 25 Coins</button>
+          <button onclick="buyItem('timeFreeze')">Buy - 150 Coins</button>
         </div>
       </div>
 
@@ -324,7 +324,7 @@
         <div class="shop-item-desc">Turns one random mine golden. Flag it for 10 points instead of 2 — but that flag can't be removed.</div>
         <div class="shop-item-row">
           <span id="midasOwned">Owned: 0</span>
-          <button onclick="buyItem('midasSpark')">Buy - 50 Coins</button>
+          <button onclick="buyItem('midasSpark')">Buy - 250 Coins</button>
         </div>
       </div>
 
@@ -333,7 +333,7 @@
         <div class="shop-item-desc">Clear the board in under 60s for a x1.5 score bonus.</div>
         <div class="shop-item-row">
           <span id="adrenalineOwned">Owned: 0</span>
-          <button onclick="buyItem('adrenaline')">Buy - 75 Coins</button>
+          <button onclick="buyItem('adrenaline')">Buy - 300 Coins</button>
         </div>
       </div>
       </div>
@@ -344,7 +344,7 @@
         <div class="shop-item-desc">Scan a tile to flash its 3x3 area — green for safe, red for mines.</div>
         <div class="shop-item-row">
           <span id="sonarOwned">Owned: 0</span>
-          <button onclick="buyItem('sonar')">Buy - 100 Coins</button>
+          <button onclick="buyItem('sonar')">Buy - 400 Coins</button>
         </div>
       </div>
 
@@ -353,7 +353,7 @@
         <div class="shop-item-desc">Click a tile to clear all mines from its 2x2 area, making it guaranteed safe.</div>
         <div class="shop-item-row">
           <span id="smokeOwned">Owned: 0</span>
-          <button onclick="buyItem('smokeBomb')">Buy - 125 Coins</button>
+          <button onclick="buyItem('smokeBomb')">Buy - 350 Coins</button>
         </div>
       </div>
 
@@ -362,16 +362,16 @@
         <div class="shop-item-desc">Can be used once per round. Blocks one mine hit.</div>
         <div class="shop-item-row">
           <span id="shieldOwned">Owned: 0</span>
-          <button onclick="buyItem('shield')">Buy - 100 Coins</button>
+          <button onclick="buyItem('shield')">Buy - 450 Coins</button>
         </div>
       </div>
 
       <div class="shop-item">
-        <div class="shop-item-name">🪽 Angel Revive</div>
+        <div class="shop-item-name">🪽 Angelic Revive</div>
         <div class="shop-item-desc">Saves you from a fatal mine hit — adds a +5s penalty to your time.</div>
         <div class="shop-item-row">
           <span id="angelOwned">Owned: 0</span>
-          <button onclick="buyItem('angelRevive')">Buy - 250 Coins</button>
+          <button onclick="buyItem('angelRevive')">Buy - 500 Coins</button>
         </div>
       </div>
       </div>
@@ -382,7 +382,7 @@
         <div class="shop-item-desc">40% chance to skip the floor instantly, 60% chance to drop back one floor.</div>
         <div class="shop-item-row">
           <span id="liftOwned">Owned: 0</span>
-          <button onclick="buyItem('hazardLift')">Buy - 50 Coins</button>
+          <button onclick="buyItem('hazardLift')">Buy - 300 Coins</button>
         </div>
       </div>
 
@@ -391,7 +391,7 @@
         <div class="shop-item-desc">Clear a floor in under 60s for x1.5 minerals from that drop.</div>
         <div class="shop-item-row">
           <span id="reactorOwned">Owned: 0</span>
-          <button onclick="buyItem('meltdownReactor')">Buy - 100 Coins</button>
+          <button onclick="buyItem('meltdownReactor')">Buy - 350 Coins</button>
         </div>
       </div>
 
@@ -400,7 +400,7 @@
         <div class="shop-item-desc">Fires a bolt that marks 1 random mine and welds the flag in place — unmarkable.</div>
         <div class="shop-item-row">
           <span id="mineBoltOwned">Owned: 0</span>
-          <button onclick="buyItem('mineBolt')">Buy - 150 Coins</button>
+          <button onclick="buyItem('mineBolt')">Buy - 450 Coins</button>
         </div>
       </div>
 
@@ -409,7 +409,7 @@
         <div class="shop-item-desc">Tanks two mine hits instead of one before breaking.</div>
         <div class="shop-item-row">
           <span id="armorOwned">Owned: 0</span>
-          <button onclick="buyItem('heavyArmor')">Buy - 300 Coins</button>
+          <button onclick="buyItem('heavyArmor')">Buy - 1000 Coins</button>
         </div>
       </div>
       </div>
@@ -1110,7 +1110,7 @@ function renderMineralBar() {
   };
 
   // --- Tienda ---
-  const SHOP_PRICES = { shield: 1, timeFreeze: 1, angelRevive: 1, adrenaline: 1, oracle: 1, sonar: 1, midasSpark: 1, smokeBomb: 1, heavyArmor: 1, mineBolt: 1, hazardLift: 1, meltdownReactor: 1 };
+  const SHOP_PRICES = { shield: 450, timeFreeze: 150, angelRevive: 500, adrenaline: 300, oracle: 150, sonar: 400, midasSpark: 250, smokeBomb: 350, heavyArmor: 1000, mineBolt: 450, hazardLift: 300, meltdownReactor: 350 };
   let myCoins = 0;
   let myItems = {};
   let timeCreditSeconds = 0;
