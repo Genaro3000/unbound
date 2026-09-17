@@ -233,7 +233,8 @@
   .cell:disabled { cursor: default; }
   .cell.revealed { background: var(--board-revealed); color: var(--text); }
       .cell.flagged { background: #ffffff; }
-  .cell.golden-flagged { background: var(--board-revealed) !important; color: var(--text); }
+    .cell.golden-flagged { background: var(--board-revealed) !important; color: var(--text); }
+  .cell.angel-flagged { background: var(--board-revealed) !important; color: var(--text); }
      .cell.xray-flash { background: #ef4444 !important; color: #ffffff; }
   .cell.oracle-highlight { background: #22c55e !important; }
   .cell.sonar-safe { background: #22c55e !important; }
@@ -1684,7 +1685,8 @@ function renderMineralBar() {
     const idx = row * COLS + col;
     if (!roundActive || cells[idx].revealed) return;
     if (idx === goldenMineIdx && cells[idx].flagged) return; // la bandera golden ya no se puede sacar
-    if (cells[idx].drillLocked) return; // las minas marcadas por el hand-drill quedan fijas
+        if (cells[idx].drillLocked) return; // las minas marcadas por el hand-drill quedan fijas
+    if (cells[idx].revivedByAngel) return; // la mina que te revivio queda marcada para siempre
     cells[idx].flagged = !cells[idx].flagged;
 
     updateProgressDisplay();
@@ -1802,6 +1804,8 @@ function renderMineralBar() {
     } else if (hitMine && hasUsesLeft("angelRevive")) {
       consumeUse("angelRevive");
       timePenaltySeconds += 5;
+      cells[idx].flagged = true;
+      cells[idx].revivedByAngel = true;
       hitMine = false;
     } else if (hitMine && wasFirstClick && (myItems.heavyArmor || myItems.titanForgeExosuit)) {
       hitMine = false;
@@ -1886,7 +1890,7 @@ function renderMineralBar() {
         const cell = cells[r * COLS + c];
         const btn = document.createElement("button");
         const idx2 = r * COLS + c;
-        btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "") + (cell.smokeSafe && !cell.revealed ? " smoke-safe" : "") + (idx2 === goldenMineIdx && cell.flagged ? " golden-flagged" : "");        btn.disabled = cell.revealed || !roundActive;
+        btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "") + (cell.smokeSafe && !cell.revealed ? " smoke-safe" : "") + (idx2 === goldenMineIdx && cell.flagged ? " golden-flagged" : "") + (cell.revivedByAngel ? " angel-flagged" : "");        btn.disabled = cell.revealed || !roundActive;
                if (cell.revealed) {
           btn.textContent = cell.mine ? "💥" : (cell.adjacent || "");
           if (cell.veinColor) btn.style.boxShadow = `inset 0 0 0 2px ${cell.veinColor}`;
@@ -1895,7 +1899,7 @@ function renderMineralBar() {
             if (dir) btn.style.boxShadow = `inset 0 0 0 3px ${BORDER_COLORS[dir]}`;
           }
         }
-          else if (cell.flagged) btn.textContent = (r * COLS + c === goldenMineIdx) ? "⭐" : (radioactiveActive ? getStabSet().markEmoji : "🚩");
+          else if (cell.flagged) btn.textContent = cell.revivedByAngel ? "😇" : ((r * COLS + c === goldenMineIdx) ? "⭐" : (radioactiveActive ? getStabSet().markEmoji : "🚩"));
         btn.onclick = () => cellClick(r, c);
         btn.oncontextmenu = (e) => { e.preventDefault(); toggleFlag(r, c); };
         board.appendChild(btn);
