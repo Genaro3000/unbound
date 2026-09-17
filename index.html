@@ -1890,8 +1890,10 @@ function renderMineralBar() {
         const cell = cells[r * COLS + c];
         const btn = document.createElement("button");
         const idx2 = r * COLS + c;
-        btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "") + (cell.smokeSafe && !cell.revealed ? " smoke-safe" : "") + (idx2 === goldenMineIdx && cell.flagged ? " golden-flagged" : "") + (cell.revivedByAngel ? " angel-flagged" : "");        btn.disabled = cell.revealed || !roundActive;
-               if (cell.revealed) {
+        btn.className = "cell" + (cell.revealed ? " revealed" : "") + (cell.flagged ? " flagged" : "") + (idx2 === oracleHighlightIdx ? " oracle-highlight" : "") + (cell.smokeSafe && !cell.revealed ? " smoke-safe" : "") + (idx2 === goldenMineIdx && cell.flagged ? " golden-flagged" : "") + (cell.revivedByAngel ? " angel-flagged" : "");        btn.disabled = cell.revealed || !roundActive || cell.revivedByAngel;
+               if (cell.revivedByAngel) {
+          btn.textContent = "😇";
+        } else if (cell.revealed) {
           btn.textContent = cell.mine ? "💥" : (cell.adjacent || "");
           if (cell.veinColor) btn.style.boxShadow = `inset 0 0 0 2px ${cell.veinColor}`;
           if (borderDebugMode) {
@@ -1899,7 +1901,7 @@ function renderMineralBar() {
             if (dir) btn.style.boxShadow = `inset 0 0 0 3px ${BORDER_COLORS[dir]}`;
           }
         }
-          else if (cell.flagged) btn.textContent = cell.revivedByAngel ? "😇" : ((r * COLS + c === goldenMineIdx) ? "⭐" : (radioactiveActive ? getStabSet().markEmoji : "🚩"));
+          else if (cell.flagged) btn.textContent = ((r * COLS + c === goldenMineIdx) ? "⭐" : (radioactiveActive ? getStabSet().markEmoji : "🚩"));
         btn.onclick = () => cellClick(r, c);
         btn.oncontextmenu = (e) => { e.preventDefault(); toggleFlag(r, c); };
         board.appendChild(btn);
