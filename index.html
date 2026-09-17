@@ -490,7 +490,7 @@
 
         <div class="shop-item">
           <div class="shop-item-name">⚡ Supernova Stasis-Core</div>
-          <div class="shop-item-desc">Needs: Time Freeze, Adrenaline Shot, Meltdown Reactor, 🟦15 Platinum, 🟩10 Chlorophyte.<br>+10s free. Clear the floor under 90s for x1.5 points and x1.5 ore.</div>
+          <div class="shop-item-desc">Needs: Time Freeze, Adrenaline Shot, Meltdown Reactor, 🟦15 Platinum, 🟩10 Chlorophyte.<br>Passive. Clear the board/floor in 90s or less for x2.0 points (Classic Mode) or x2.0 minerals (Rad-Mines).</div>
           <div class="shop-item-row"><span id="supernovaOwned">Owned: 0</span><button onclick="fuseItem('supernovaCore')">Fuse</button></div>
         </div>
 
@@ -1007,7 +1007,7 @@ function renderMineralBar() {
     { key: "meltdownReactor", emoji: "☢️", name: "Meltdown Reactor" },
     { key: "heavyArmor", emoji: "🪖", name: "Heavy Armor" },
     { key: "titanForgeExosuit", emoji: "🔱", name: "Titan-Forge Exosuit" },
-    { key: "supernovaCore", emoji: "⚡", name: "Supernova Stasis-Core", useFn: "useSupernovaCore" }
+    { key: "supernovaCore", emoji: "⚡", name: "Supernova Stasis-Core" }
   ];
   window.switchBagTab = function (tab) {
     document.getElementById("bagActiveList").style.display = tab === "active" ? "block" : "none";
@@ -1423,12 +1423,9 @@ function renderMineralBar() {
     }
 
     const clearedUnder90 = (Date.now() - floorStartTime) < 90000;
-    if (supernovaBonusActive) {
-      if (clearedUnder90) {
-        roundScore = Math.round(roundScore * 1.5);
-        dropAmount = Math.round(dropAmount * 1.5);
-      }
-      supernovaBonusActive = false;
+    if (clearedUnder90 && hasUsesLeft("supernovaCore")) {
+      dropAmount = Math.round(dropAmount * 2.0);
+      consumeUse("supernovaCore");
     }
 
     dropAmount = Math.round(dropAmount * floorMineralMultiplier);
@@ -1619,12 +1616,7 @@ function renderMineralBar() {
     }, 500);
   }
 
-  window.useSupernovaCore = function () {
-    if (!roundActive || !radioactiveActive || !hasUsesLeft("supernovaCore")) return;
-    floorStartTime += 10000;
-    supernovaBonusActive = true;
-    consumeUse("supernovaCore");
-  };
+
 
   window.usePhantomMidasRift = function () {
     if (!roundActive || !radioactiveActive || !hasUsesLeft("phantomMidasRift")) return;
@@ -1861,6 +1853,10 @@ function renderMineralBar() {
     if (won && elapsedSeconds < 60 && hasUsesLeft("adrenaline")) {
       finalScore = Math.round(finalScore * 1.5);
       consumeUse("adrenaline");
+    }
+    if (won && elapsedSeconds < 90 && hasUsesLeft("supernovaCore")) {
+      finalScore = Math.round(finalScore * 2.0);
+      consumeUse("supernovaCore");
     }
     runTransaction(ref(db, "players/current/" + playerId), (current) => {
       const player = current || { name: localStorage.getItem("ms_name") || "Player", score: 0, coins: 0 };
