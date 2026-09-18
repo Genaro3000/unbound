@@ -475,7 +475,7 @@
           <div class="shop-item-row"><span id="smeltPlatinumOwned">Have: 0</span><button id="smeltRow3Btn" onclick="smeltRow(3)">Smelt</button></div>
         </div>
         <div class="shop-item">
-          <div class="shop-item-name" id="smeltRow4Name">🟩 25 Chlorophyte → 🟪 5 Hallowed Metal</div>
+          <div class="shop-item-name" id="smeltRow4Name">🟩 25 Chlorophyte → 🟪 5 Hallowed</div>
           <div class="shop-item-row"><span id="smeltChloroOwned">Have: 0</span><button id="smeltRow4Btn" onclick="smeltRow(4)">Smelt</button></div>
         </div>
       </div>
@@ -503,7 +503,7 @@
 
         <div class="shop-item">
           <div class="shop-item-name">🔱 Titan-Forge Exosuit</div>
-          <div class="shop-item-desc">Needs: Shield, Angelic Revive, Heavy Armor, 🟩20 Chlorophyte, 🟪10 Hallowed.<br>Passive. Tanks 3 hits + 1st-click immunity. Auto-revives once with a free Shield.</div>
+          <div class="shop-item-desc">Needs: Shield, Angelic Revive, Heavy Armor, 🟩20 Chlorophyte, 🟪10 Hallowed.<br>Passive. Tanks 3 mine hits per round — works independently alongside Angelic Revive for one extra hit on top.</div>
           <div class="shop-item-row"><span id="titanOwned">Owned: 0</span><button onclick="fuseItem('titanForgeExosuit')">Fuse</button></div>
         </div>
       </div>
@@ -1807,7 +1807,7 @@ function renderMineralBar() {
       cells[idx].flagged = true;
       cells[idx].revivedByAngel = true;
       hitMine = false;
-    } else if (hitMine && wasFirstClick && (myItems.heavyArmor || myItems.titanForgeExosuit)) {
+    } else if (hitMine && wasFirstClick && myItems.heavyArmor) {
       hitMine = false;
     } else if (hitMine && hasUsesLeft("heavyArmor")) {
       consumeUse("heavyArmor");
