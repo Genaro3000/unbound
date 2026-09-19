@@ -1798,18 +1798,12 @@ function renderMineralBar() {
 
     updateProgressDisplay();
 
-    if (hitMine && hasUsesLeft("shield")) {
+    if (hitMine && wasFirstClick && myItems.heavyArmor && !myItems.titanForgeExosuit) {
+      hitMine = false;
+    } else if (hitMine && hasUsesLeft("shield") && !myItems.titanForgeExosuit) {
       consumeUse("shield");
       hitMine = false;
-    } else if (hitMine && hasUsesLeft("angelRevive")) {
-      consumeUse("angelRevive");
-      timePenaltySeconds += 5;
-      cells[idx].flagged = true;
-      cells[idx].revivedByAngel = true;
-      hitMine = false;
-    } else if (hitMine && wasFirstClick && myItems.heavyArmor) {
-      hitMine = false;
-    } else if (hitMine && hasUsesLeft("heavyArmor")) {
+    } else if (hitMine && hasUsesLeft("heavyArmor") && !myItems.titanForgeExosuit) {
       consumeUse("heavyArmor");
       hitMine = false;
     } else if (hitMine && titanChargesLeft > 0) {
@@ -1819,11 +1813,11 @@ function renderMineralBar() {
       titanConsumedThisRound = true;
       titanChargesLeft = 2;
       hitMine = false;
-    } else if (hitMine && titanConsumedThisRound && !titanRevivedThisRound) {
-      titanRevivedThisRound = true;
-      myItems.shield = true;
-      itemUsesLeft.shield = 1;
-      updateUsesDisplay();
+    } else if (hitMine && hasUsesLeft("angelRevive")) {
+      consumeUse("angelRevive");
+      timePenaltySeconds += 5;
+      cells[idx].flagged = true;
+      cells[idx].revivedByAngel = true;
       hitMine = false;
     }
     renderBoard();
