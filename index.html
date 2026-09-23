@@ -953,7 +953,7 @@ function renderMineralBar() {
   let flagMode = false;
   const MINE_FLAG_POINTS = 0; // ya no se dan puntos por marcar minas
     const CLEAR_BOARD_BONUS = 100; // puntos fijos por completar el tablero entero
-          const RADIOACTIVE_UNLOCK_SCORE = 1000; // 👈 puntaje total necesario para desbloquear el modo
+          const RADIOACTIVE_UNLOCK_SCORE = 0; // 👈 puntaje total necesario para desbloquear el modo
 
   let borderDebugMode = false;
   window.toggleDebugMode = function () {
@@ -1123,10 +1123,6 @@ function renderMineralBar() {
   let timeCreditSeconds = 0;
   let multiplierActiveUntil = 0;
 
-  let shopOpen = false;
-  let currentShopPage = 1;
-  let radioactiveUnlocked = false;
-  
   onValue(ref(db, "players/current/" + playerId), (snap) => {
     const me = snap.val();
     if (!me) return;
@@ -1159,7 +1155,9 @@ function renderMineralBar() {
     if (bagOpen) renderBag();
   });
 
-   
+  let shopOpen = false;
+  let currentShopPage = 1;
+  let radioactiveUnlocked = false;
 
   window.toggleShop = function () {
     shopOpen = !shopOpen;
@@ -1800,12 +1798,18 @@ function renderMineralBar() {
 
     updateProgressDisplay();
 
-    if (hitMine && wasFirstClick && myItems.heavyArmor && !myItems.titanForgeExosuit) {
-      hitMine = false;
-    } else if (hitMine && hasUsesLeft("shield") && !myItems.titanForgeExosuit) {
+    if (hitMine && hasUsesLeft("shield")) {
       consumeUse("shield");
       hitMine = false;
-    } else if (hitMine && hasUsesLeft("heavyArmor") && !myItems.titanForgeExosuit) {
+    } else if (hitMine && hasUsesLeft("angelRevive")) {
+      consumeUse("angelRevive");
+      timePenaltySeconds += 5;
+      cells[idx].flagged = true;
+      cells[idx].revivedByAngel = true;
+      hitMine = false;
+    } else if (hitMine && wasFirstClick && myItems.heavyArmor) {
+      hitMine = false;
+    } else if (hitMine && hasUsesLeft("heavyArmor")) {
       consumeUse("heavyArmor");
       hitMine = false;
     } else if (hitMine && titanChargesLeft > 0) {
@@ -1815,11 +1819,11 @@ function renderMineralBar() {
       titanConsumedThisRound = true;
       titanChargesLeft = 2;
       hitMine = false;
-    } else if (hitMine && hasUsesLeft("angelRevive")) {
-      consumeUse("angelRevive");
-      timePenaltySeconds += 5;
-      cells[idx].flagged = true;
-      cells[idx].revivedByAngel = true;
+    } else if (hitMine && titanConsumedThisRound && !titanRevivedThisRound) {
+      titanRevivedThisRound = true;
+      myItems.shield = true;
+      itemUsesLeft.shield = 1;
+      updateUsesDisplay();
       hitMine = false;
     }
     renderBoard();
