@@ -1123,6 +1123,10 @@ function renderMineralBar() {
   let timeCreditSeconds = 0;
   let multiplierActiveUntil = 0;
 
+  let shopOpen = false;
+  let currentShopPage = 1;
+  let radioactiveUnlocked = false;
+  
   onValue(ref(db, "players/current/" + playerId), (snap) => {
     const me = snap.val();
     if (!me) return;
@@ -1155,9 +1159,7 @@ function renderMineralBar() {
     if (bagOpen) renderBag();
   });
 
-  let shopOpen = false;
-  let currentShopPage = 1;
-  let radioactiveUnlocked = false;
+   
 
   window.toggleShop = function () {
     shopOpen = !shopOpen;
